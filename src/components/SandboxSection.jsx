@@ -7,7 +7,7 @@ export default function SandboxSection() {
     <section id="sandbox" className="section" style={{ background: 'var(--bg-secondary)', minHeight: '70vh' }}>
       <div className="container-wide">
         <div className="section-header">
-          <span className="badge badge-green">Experiment</span>
+          <span className="badge badge-green">Sandbox</span>
           <h2>🧪 Interactive Sandbox</h2>
           <p className="section-subtitle">
             Apply what you&apos;ve learned. This is your laboratory for experimenting with

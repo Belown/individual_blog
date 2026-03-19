@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 const sections = [
   { id: 'intro', label: 'What is Eye Tracking' },
   { id: 'patterns', label: 'Gaze Patterns' },
-  { id: 'factors', label: 'Scanpath Factors' },
+  { id: 'factors', label: 'Scanpath Formation' },
   { id: 'sandbox', label: 'Sandbox' },
 ];
 

@@ -316,7 +316,7 @@ export default function PatternsSection() {
     <section id="patterns" className="section" style={{ background: 'var(--bg-secondary)' }}>
       <div className="container-wide">
         <div className="section-header">
-          <span className="badge badge-purple">Gaze Behavior</span>
+          <span className="badge badge-purple">Gaze Patterns</span>
           <h2>How Eyes Scan a Page</h2>
           <p className="section-subtitle" style={{ maxWidth:'8000px' }}>
             Eye-tracking research has revealed several recurring patterns in how people scan

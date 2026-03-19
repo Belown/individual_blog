@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:is.mpg.de)",
+      "WebFetch(domain:arxiv.org)",
+      "WebFetch(domain:jov.arvojournals.org)",
+      "WebFetch(domain:lisaschwetlick.de)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:wexler.free.fr)",
+      "WebFetch(domain:pmc.ncbi.nlm.nih.gov)",
+      "WebFetch(domain:hasler.ece.gatech.edu)",
+      "Bash(npm run:*)",
+      "Bash(node -e \":*)"
+    ]
+  }
+}
