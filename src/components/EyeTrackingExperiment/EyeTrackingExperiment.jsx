@@ -401,14 +401,12 @@ function ResultCard({ content, gazePoints, label }) {
 
 /* ── Calibration dot ─────────────────────────────────────────────*/
 function CalibDot({ rx, ry, idx, done, active, clicksLeft, onClick }) {
-  const x = rx * window.innerWidth;
-  const y = ry * window.innerHeight;
   return (
     <div
       onClick={onClick}
       style={{
         position: 'fixed',
-        left: x - 18, top: y - 18,
+        left: `calc(${rx * 100}vw - 18px)`, top: `calc(${ry * 100}vh - 18px)`,
         width: 36, height: 36,
         borderRadius: '50%',
         background: done ? '#1a8a6a' : active ? '#d4553a' : '#ccc',
@@ -429,11 +427,15 @@ function CalibDot({ rx, ry, idx, done, active, clicksLeft, onClick }) {
 }
 
 /* ── Camera face-position guide overlay ──────────────────────────*/
+// Camera panel base dimensions (used as SVG viewBox units and max pixel size).
+// Actual rendered size is viewport-relative: min(280px, 22vw) × min(210px, 16.5vw).
 const CAM_W = 280, CAM_H = 210;
+// Camera panel uses CSS min(280px, 15vw) × min(210px, 11.25vw) so it stays
+// narrower than the first calibration column (rx=0.18) on all screen sizes.
 function CamGuide() {
   return (
     <svg
-      style={{ position: 'fixed', top: 0, left: 0, width: CAM_W, height: CAM_H, zIndex: 2006, pointerEvents: 'none' }}
+      style={{ position: 'fixed', top: 0, left: 0, width: 'min(280px, 15vw)', height: 'min(210px, 11.25vw)', zIndex: 9900, pointerEvents: 'none' }}
       viewBox={`0 0 ${CAM_W} ${CAM_H}`}
     >
       <defs>
@@ -549,8 +551,8 @@ export default function EyeTrackingExperiment() {
           left:          '0',
           bottom:        'auto',
           right:         'auto',
-          width:         '280px',
-          height:        '210px',
+          width:         'min(280px, 15vw)',
+          height:        'min(210px, 11.25vw)',
           borderRadius:  '0 0 10px 0',
           overflow:      'hidden',
           border:        'none',
@@ -810,13 +812,16 @@ export default function EyeTrackingExperiment() {
         </div>
       )}
 
+      {/* CamGuide sits outside the overlay so its z-index is in the root stacking
+          context and can exceed the WebGazer video container (z-index 2004). */}
+      {(phase === 'calibrating' || phase === 'validating') && <CamGuide />}
+
       {/* ── Fullscreen overlay ─────────────────────────────────── */}
       {isOverlay && (
         <div className="ete-overlay">
 
           {/* ── Face detection badge (option 6) ────────────────── */}
           {showFaceBadge && <FaceDetectionBadge detected={faceDetected} />}
-          {(phase === 'calibrating' || phase === 'validating') && <CamGuide />}
 
           {/* Loading */}
           {phase === 'loading' && (
@@ -842,21 +847,15 @@ export default function EyeTrackingExperiment() {
                 <span className="ete-cam-label-icon">📷</span>
                 Keep your face centred in the box
               </div>
-              {CALIB_PTS.map((pt, i) => {
-                // Nudge any dot that falls inside the camera panel (top-left 280×210)
-                // so it appears adjacent to the camera instead of hidden behind it.
-                let dotX = pt.rx * window.innerWidth;
-                let dotY = pt.ry * window.innerHeight;
-                return (
+              {CALIB_PTS.map((pt, i) => (
                 <CalibDot
-                  key={i} rx={dotX / window.innerWidth} ry={dotY / window.innerHeight} idx={i}
+                  key={i} rx={pt.rx} ry={pt.ry} idx={i}
                   done={i < calibIdx}
                   active={i === calibIdx}
                   clicksLeft={CLICKS_PER_DOT - calibClicks}
                   onClick={i === calibIdx ? handleCalibClick : undefined}
                 />
-                );
-              })}
+              ))}
               {gazeDot && (
                 <div className="ete-gaze-cursor" style={{ left: gazeDot.x - 8, top: gazeDot.y - 8 }} />
               )}
@@ -879,8 +878,8 @@ export default function EyeTrackingExperiment() {
                 key={`vdot-${validIdx}`}
                 className="ete-valid-dot"
                 style={{
-                  left: VALID_PTS[validIdx].rx * window.innerWidth - 20,
-                  top:  VALID_PTS[validIdx].ry * window.innerHeight - 20,
+                  left: `calc(${VALID_PTS[validIdx].rx * 100}vw - 20px)`,
+                  top:  `calc(${VALID_PTS[validIdx].ry * 100}vh - 20px)`,
                   animationDuration: `${VALID_MS}ms`,
                 }}
               />
