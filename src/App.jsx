@@ -1,22 +1,20 @@
-import Hero from './components/Hero/Hero';
-import ScanpathIntro from './components/ScanpathIntro/ScanpathIntro';
-import NLDSection from './components/NLDSection/NLDSection';
-import ScaSimSection from './components/ScaSimSection/ScaSimSection';
-import MultiMatchSection from './components/MultiMatchSection/MultiMatchSection';
-import ComparisonTable from './components/ComparisonTable/ComparisonTable';
-import Sandbox from './components/Sandbox/Sandbox';
-import Footer from './components/Footer/Footer';
+import Navigation from './layout/Navigation';
+import IntroSection from './components/IntroSection';
+import PatternsSection from './components/PatternsSection';
+import FactorsSection from './components/FactorsSection';
+import SandboxSection from './components/SandboxSection';
+import Footer from './layout/Footer';
 
 export default function App() {
   return (
     <>
-      <Hero />
-      <ScanpathIntro />
-      <NLDSection />
-      <ScaSimSection />
-      <MultiMatchSection />
-      <ComparisonTable />
-      <Sandbox />
+      <Navigation />
+      <main>
+        <IntroSection />
+        <PatternsSection />
+        <FactorsSection />
+        <SandboxSection />
+      </main>
       <Footer />
     </>
   );

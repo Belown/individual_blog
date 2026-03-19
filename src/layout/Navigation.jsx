@@ -1,0 +1,95 @@
+import { useState, useEffect } from 'react';
+
+const sections = [
+  { id: 'intro', label: 'What is Eye Tracking' },
+  { id: 'patterns', label: 'Gaze Patterns' },
+  { id: 'factors', label: 'Scanpath Factors' },
+  { id: 'sandbox', label: 'Sandbox' },
+];
+
+export default function Navigation() {
+  const [active, setActive] = useState('intro');
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 40);
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sections[i].id);
+        if (el && el.getBoundingClientRect().top <= 120) {
+          setActive(sections[i].id);
+          break;
+        }
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const scrollTo = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  return (
+    <nav style={{ ...s.nav, ...(scrolled ? s.navScrolled : {}) }}>
+      <div style={s.inner}>
+        <div style={s.brand} onClick={() => scrollTo('intro')}>
+          <span style={s.brandIcon}>👁</span>
+          <span style={s.brandText}>EyeTrack Explorer</span>
+        </div>
+        <div style={s.links}>
+          {sections.map((sec) => (
+            <button
+              key={sec.id}
+              onClick={() => scrollTo(sec.id)}
+              style={{
+                ...s.link,
+                ...(active === sec.id ? s.linkActive : {}),
+              }}
+            >
+              {sec.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+const s = {
+  nav: {
+    position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
+    background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)',
+    borderBottom: '1px solid transparent',
+    transition: 'all 200ms ease',
+  },
+  navScrolled: {
+    borderBottom: '1px solid #e0dcd5',
+    boxShadow: '0 1px 8px rgba(0,0,0,0.04)',
+  },
+  inner: {
+    maxWidth: 1060, margin: '0 auto', padding: '0 24px',
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    height: 56,
+  },
+  brand: {
+    display: 'flex', alignItems: 'center', gap: 8,
+    cursor: 'pointer', userSelect: 'none',
+  },
+  brandIcon: { fontSize: '1.2rem' },
+  brandText: {
+    fontFamily: "'Inter', sans-serif", fontSize: '0.95rem', fontWeight: 700,
+    color: '#2c2c2c',
+  },
+  links: { display: 'flex', alignItems: 'center', gap: 2 },
+  link: {
+    padding: '6px 14px', border: 'none', borderRadius: 6,
+    background: 'transparent', color: '#888',
+    fontFamily: "'Inter', sans-serif", fontSize: '0.82rem', fontWeight: 500,
+    cursor: 'pointer', transition: 'all 200ms ease', whiteSpace: 'nowrap',
+  },
+  linkActive: {
+    color: '#1a8a6a', background: 'rgba(26,138,106,0.08)',
+    fontWeight: 600,
+  },
+};
