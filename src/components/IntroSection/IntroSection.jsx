@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import './IntroSection.css';
 
 /* ── Animated particle background for hero ─────────────────────── */
 function HeroCanvas() {
@@ -123,43 +124,39 @@ function HorizontalTimeline() {
   const active = timelineData[activeIdx];
 
   return (
-    <div style={s.htContainer}>
+    <div className="is-ht-container">
       {/* Card above the line */}
-      <div style={s.htCard}>
-        <div style={s.htCardYear}>{active.year}</div>
-        <div style={s.htCardTitle}>{active.title}</div>
-        <div style={s.htCardDesc}>{active.desc}</div>
+      <div className="is-ht-card">
+        <div className="is-ht-card-year">{active.year}</div>
+        <div className="is-ht-card-title">{active.title}</div>
+        <div className="is-ht-card-desc">{active.desc}</div>
         {active.link && (
-          <a href={active.link} target="_blank" rel="noopener noreferrer" style={s.htCardLink}>
+          <a href={active.link} target="_blank" rel="noopener noreferrer" className="is-ht-card-link">
             Read more →
           </a>
         )}
       </div>
       {/* Arrow from card to dot */}
-      <div style={s.htArrowWrap}>
+      <div className="is-ht-arrow-wrap">
         <svg width="16" height="10" viewBox="0 0 16 10" style={{ display: 'block', margin: '0 auto' }}>
           <polygon points="0,0 16,0 8,10" fill="var(--bg-card)" stroke="var(--border)" strokeWidth="1" />
         </svg>
       </div>
       {/* Horizontal axis */}
-      <div style={s.htAxis}>
-        <div style={s.htLine} />
-        <div style={s.htDots}>
+      <div className="is-ht-axis">
+        <div className="is-ht-line" />
+        <div className="is-ht-dots">
           {timelineData.map((item, i) => (
             <div
               key={item.year}
-              style={s.htDotWrap}
+              className="is-ht-dot-wrap"
               onMouseEnter={() => setActiveIdx(i)}
               onClick={() => setActiveIdx(i)}
             >
-              <div style={{
-                ...s.htDot,
-                ...(i === activeIdx ? s.htDotActive : {}),
-              }} />
-              <div style={{
-                ...s.htLabel,
-                ...(i === activeIdx ? s.htLabelActive : {}),
-              }}>{item.year}</div>
+              <div className={`is-ht-dot${i === activeIdx ? ' is-ht-dot--active' : ''}`} />
+              <div className={`is-ht-label${i === activeIdx ? ' is-ht-label--active' : ''}`}>
+                {item.year}
+              </div>
             </div>
           ))}
         </div>
@@ -171,8 +168,8 @@ function HorizontalTimeline() {
 /* ── Application card ──────────────────────────────────────────── */
 function AppCard({ icon, title, desc }) {
   return (
-    <div className="card" style={s.appCard}>
-      <div style={s.appIcon}>{icon}</div>
+    <div className="card is-app-card">
+      <div className="is-app-icon">{icon}</div>
       <h4 style={{ marginBottom: 4 }}>{title}</h4>
       <p style={{ fontSize: '0.92rem', margin: 0 }}>{desc}</p>
     </div>
@@ -184,16 +181,16 @@ export default function IntroSection() {
   return (
     <section id="intro">
       {/* Dark hero header — Explorable Explanations style */}
-      <div style={s.hero}>
+      <div className="is-hero">
         <HeroCanvas />
-        <div style={s.heroContent}>
-          <h1 style={s.heroTitle}>
+        <div className="is-hero-content">
+          <h1 className="is-hero-title">
             EYE TRACKING
           </h1>
-          <p style={s.heroSubtitle}>& How We See the Web</p>
+          <p className="is-hero-subtitle">& How We See the Web</p>
         </div>
         {/* Speech bubble arrow pointing down */}
-        <div style={s.arrow}>
+        <div className="is-arrow">
           <svg width="60" height="30" viewBox="0 0 60 30">
             <polygon points="0,0 60,0 30,30" fill="#ffffff" />
           </svg>
@@ -202,7 +199,7 @@ export default function IntroSection() {
 
       {/* Light content area */}
       <div className="container" style={{ paddingTop: 48, paddingBottom: 60 }}>
-        <p style={s.leadText}>
+        <p className="is-lead-text">
           Every time you look at a screen, your eyes make 3–4 rapid movements per second.
           Eye tracking captures these invisible micro-movements to reveal <em>where</em> you
           look, <em>how long</em> you linger, and <em>what</em> you skip entirely.
@@ -210,32 +207,32 @@ export default function IntroSection() {
         </p>
 
         {/* What is Eye Tracking */}
-        <h2 style={s.sectionTitle}>What is Eye Tracking?</h2>
+        <h2 className="is-section-title">What is Eye Tracking?</h2>
         <p>
           Eye tracking is the process of measuring where a person is looking (the <em>point of gaze</em>)
           or the motion of the eye relative to the head. Modern eye trackers use infrared light
           reflected off the cornea and pupil to calculate gaze direction with high precision.
         </p>
 
-        <div style={s.conceptGrid}>
-          <div className="card" style={s.conceptCard}>
-            <div style={s.conceptIcon}>🎯</div>
+        <div className="is-concept-grid">
+          <div className="card is-concept-card">
+            <div className="is-concept-icon">🎯</div>
             <h4>Fixation</h4>
             <p style={{ fontSize: '0.92rem', margin: 0 }}>
               A moment (100–600 ms) when the eye is relatively still, actively processing visual information.
               This is when you actually <em>see</em>.
             </p>
           </div>
-          <div className="card" style={s.conceptCard}>
-            <div style={s.conceptIcon}>⚡</div>
+          <div className="card is-concept-card">
+            <div className="is-concept-icon">⚡</div>
             <h4>Saccade</h4>
             <p style={{ fontSize: '0.92rem', margin: 0 }}>
               A rapid, ballistic eye movement between fixations (20–80 ms). During saccades,
               vision is suppressed — you are essentially <em>blind</em>.
             </p>
           </div>
-          <div className="card" style={s.conceptCard}>
-            <div style={s.conceptIcon}>🔄</div>
+          <div className="card is-concept-card">
+            <div className="is-concept-icon">🔄</div>
             <h4>Scanpath</h4>
             <p style={{ fontSize: '0.92rem', margin: 0 }}>
               The complete sequence of fixations and saccades as someone views a scene.
@@ -245,18 +242,18 @@ export default function IntroSection() {
         </div>
 
         {/* Brief History */}
-        <h2 style={{ ...s.sectionTitle, marginTop: 56 }}>A Brief History</h2>
+        <h2 className="is-section-title" style={{ marginTop: 56 }}>A Brief History</h2>
         <p style={{ marginBottom: 28 }}>
           From mechanical contraptions to webcam-based AI — eye tracking has come a long way.
         </p>
         <HorizontalTimeline />
 
         {/* Applications */}
-        <h2 style={{ ...s.sectionTitle, marginTop: 56 }}>Where is Eye Tracking Applied?</h2>
+        <h2 className="is-section-title" style={{ marginTop: 56 }}>Where is Eye Tracking Applied?</h2>
         <p style={{ marginBottom: 28 }}>
           Eye tracking has moved far beyond the research lab.
         </p>
-        <div style={s.appGrid}>
+        <div className="is-app-grid">
           <AppCard icon="🖥️" title="UX & Web Design"
             desc="Understanding how users scan websites to optimize layouts, CTAs, and content hierarchy." />
           <AppCard icon="📢" title="Advertising"
@@ -274,118 +271,3 @@ export default function IntroSection() {
     </section>
   );
 }
-
-const s = {
-  hero: {
-    position: 'relative', background: '#2c2c2c',
-    minHeight: 340, display: 'flex', alignItems: 'center', justifyContent: 'center',
-    paddingTop: 56, overflow: 'hidden',
-  },
-  heroContent: {
-    position: 'relative', zIndex: 1, textAlign: 'center',
-    padding: '60px 24px 50px',
-  },
-  heroTitle: {
-    fontFamily: "'Inter', sans-serif", fontSize: 'clamp(2.2rem, 6vw, 4rem)',
-    fontWeight: 900, color: '#ffffff', letterSpacing: '0.06em',
-    textTransform: 'uppercase', margin: 0, lineHeight: 1.1,
-  },
-  heroSubtitle: {
-    fontFamily: "'Lora', serif", fontSize: 'clamp(1rem, 2.5vw, 1.4rem)',
-    color: 'rgba(255,255,255,0.65)', fontStyle: 'italic',
-    marginTop: 8, marginBottom: 0,
-  },
-  arrow: {
-    position: 'absolute', bottom: -1, left: '50%', transform: 'translateX(-50%)',
-    zIndex: 2, lineHeight: 0,
-  },
-
-  leadText: {
-    fontSize: '1.1rem', lineHeight: 1.9, textAlign: 'justify',
-    maxWidth: 640, margin: '0 auto 40px', color: 'var(--text-secondary)',
-  },
-
-  sectionTitle: {
-    textAlign: 'center', marginBottom: 12,
-  },
-
-  conceptGrid: {
-    display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-    gap: 16, marginTop: 24,
-  },
-  conceptCard: { textAlign: 'center' },
-  conceptIcon: { fontSize: '2rem', marginBottom: 10 },
-
-  // Horizontal timeline
-  htContainer: {
-    maxWidth: 720, margin: '0 auto', position: 'relative',
-  },
-  htCard: {
-    background: 'var(--bg-card)', border: '1px solid var(--border)',
-    borderRadius: 'var(--radius-md)', padding: '18px 22px',
-    minHeight: 90, textAlign: 'center',
-    transition: 'all 200ms ease',
-  },
-  htCardYear: {
-    fontFamily: "'JetBrains Mono', monospace",
-    fontSize: '0.72rem', fontWeight: 600, color: 'var(--accent)',
-    marginBottom: 3,
-  },
-  htCardTitle: {
-    fontFamily: "'Inter', sans-serif",
-    fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)',
-    marginBottom: 6,
-  },
-  htCardDesc: {
-    fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.6,
-  },
-  htCardLink: {
-    display: 'inline-block', marginTop: 8,
-    fontFamily: "'Inter', sans-serif", fontSize: '0.8rem', fontWeight: 600,
-    color: 'var(--accent)', textDecoration: 'none',
-  },
-  htArrowWrap: {
-    textAlign: 'center', marginTop: -1, marginBottom: -1, position: 'relative', zIndex: 1,
-  },
-  htAxis: {
-    position: 'relative', paddingTop: 0,
-  },
-  htLine: {
-    position: 'absolute', top: 4, left: 0, right: 0, height: 2,
-    background: 'linear-gradient(to right, var(--accent), var(--accent-warm))',
-    opacity: 0.3, borderRadius: 1,
-  },
-  htDots: {
-    display: 'flex', justifyContent: 'space-between', position: 'relative',
-  },
-  htDotWrap: {
-    display: 'flex', flexDirection: 'column', alignItems: 'center',
-    cursor: 'pointer', padding: '0 2px', flex: 1,
-  },
-  htDot: {
-    width: 10, height: 10, borderRadius: '50%',
-    background: 'var(--border)', border: '2px solid #fff',
-    boxShadow: '0 0 0 1px var(--border)',
-    transition: 'all 200ms ease', marginBottom: 8,
-  },
-  htDotActive: {
-    background: 'var(--accent)',
-    boxShadow: '0 0 0 2px var(--accent)',
-    transform: 'scale(1.3)',
-  },
-  htLabel: {
-    fontFamily: "'JetBrains Mono', monospace",
-    fontSize: '0.65rem', fontWeight: 500, color: 'var(--text-muted)',
-    transition: 'color 200ms ease',
-  },
-  htLabelActive: {
-    color: 'var(--accent)', fontWeight: 700,
-  },
-
-  appGrid: {
-    display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-    gap: 14,
-  },
-  appCard: { display: 'flex', flexDirection: 'column', gap: 2 },
-  appIcon: { fontSize: '1.6rem', marginBottom: 6 },
-};

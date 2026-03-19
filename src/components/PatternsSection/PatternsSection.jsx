@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import './PatternsSection.css';
 
 /* ── Pattern Demo Canvas ───────────────────────────────────────── */
 function PatternCanvas({ pattern, label }) {
@@ -300,7 +301,7 @@ function PatternCanvas({ pattern, label }) {
   }, [playing, pts, drawScene]);
 
   return (
-    <div className="card" style={s.patternCard}>
+    <div className="card ps-pattern-card">
       <h4 style={{ marginBottom: 6 }}>{label}</h4>
       <canvas ref={ref} className="demo-canvas" style={{ height: 280, marginBottom: 12 }} />
       <button className="btn btn-primary btn-sm" onClick={() => setPlaying(true)} disabled={playing}>
@@ -325,7 +326,7 @@ export default function PatternsSection() {
         </div>
 
         <div className="container">
-          <div style={s.explBlock}>
+          <div className="ps-expl-block">
             <h3 style={{ marginBottom: 8 }}>📖 Reading-Based Patterns</h3>
             <p>
               When a page is <strong>text-heavy</strong>, readers in left-to-right languages tend to
@@ -338,12 +339,12 @@ export default function PatternsSection() {
               <strong> content placed in the top-left gets the most attention</strong>, while the
               bottom-right is often ignored.
             </p>
-            <p style={s.refLink}>
+            <p className="ps-ref-link">
               📎 Reference: <a href="https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content-discovered/" target="_blank" rel="noopener noreferrer">Nielsen, J. (2006). F-Shaped Pattern For Reading Web Content</a>
             </p>
           </div>
 
-          <div style={s.explBlock}>
+          <div className="ps-expl-block">
             <h3 style={{ marginBottom: 8 }}>🎨 Visual-Based Patterns</h3>
             <p>
               For pages with <strong>less text and more visual elements</strong> (landing pages,
@@ -357,12 +358,12 @@ export default function PatternsSection() {
               Area (bottom-right). Attention naturally flows from primary to terminal along a
               &quot;reading gravity&quot; diagonal.
             </p>
-            <p style={s.refLink}>
+            <p className="ps-ref-link">
               📎 References: <a href="https://vanseodesign.com/web-design/3-design-layouts/#:~:text=3%20Design%20Layouts%3A%20Gutenberg%20Diagram,-Pattern%2C%20And%20F-Pattern" target="_blank" rel="noopener noreferrer">Z-Pattern</a> · <a href="https://medium.com/user-experience-3/the-gutenberg-diagram-in-web-design-e5347c172627" target="_blank" rel="noopener noreferrer">Gutenberg Diagram</a>
             </p>
           </div>
 
-          <div style={s.explBlock}>
+          <div className="ps-expl-block">
             <h3 style={{ marginBottom: 8 }}>📊 The Layer-Cake Pattern</h3>
             <p>
               A variation of the F-pattern where users <strong>only read headings and subheadings</strong>,
@@ -370,7 +371,7 @@ export default function PatternsSection() {
               by vertical jumps — like a layer cake. This is extremely common on mobile devices
               and content-heavy pages.
             </p>
-            <p style={s.refLink}>
+            <p className="ps-ref-link">
               📎 Reference: <a href="https://www.nngroup.com/articles/layer-cake-pattern-scanning/" target="_blank" rel="noopener noreferrer">The Layer-Cake Pattern of Scanning Content on the Web</a>
             </p>
           </div>
@@ -382,7 +383,7 @@ export default function PatternsSection() {
         <p style={{ textAlign: 'center', maxWidth: 460, margin: '0 auto 28px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
           Click &quot;Animate&quot; to watch each pattern unfold step by step.
         </p>
-        <div style={s.patternGrid}>
+        <div className="ps-pattern-grid">
           <PatternCanvas pattern="f-pattern" label="F-Pattern" />
           <PatternCanvas pattern="z-pattern" label="Z-Pattern" />
           <PatternCanvas pattern="gutenberg" label="Gutenberg Diagram" />
@@ -400,20 +401,3 @@ export default function PatternsSection() {
     </section>
   );
 }
-
-const s = {
-  explBlock: {
-    marginBottom: 24, padding: '22px 26px',
-    background: 'var(--bg-card)', border: '1px solid var(--border)',
-    borderRadius: 'var(--radius-lg)',
-  },
-  refLink: {
-    fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 8, marginBottom: 0,
-    fontFamily: "'Inter', sans-serif",
-  },
-  patternGrid: {
-    display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: 16, maxWidth: 1060, margin: '0 auto', padding: '0 24px',
-  },
-  patternCard: { display: 'flex', flexDirection: 'column' },
-};

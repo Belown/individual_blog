@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { drawPageElements } from '../utils/scenewalkSimulator';
+import { drawPageElements } from '../../utils/scenewalkSimulator';
+import './EyeTrackingExperiment.css';
 
 /* ── Trial definitions: 2 variants per factor ─────────────────── */
 const FACTORS = [
@@ -179,9 +180,9 @@ function ResultCanvas({ elements, gazePoints, label }) {
 
   return (
     <div style={{ flex: 1, minWidth: 0 }}>
-      <div style={s.variantLabel}>{label}</div>
+      <div className="ete-variant-label">{label}</div>
       <canvas ref={ref} className="demo-canvas" style={{ height: 280, display: 'block', width: '100%' }} />
-      <div style={s.gazeCount}>{gazePoints.length} gaze samples</div>
+      <div className="ete-gaze-count">{gazePoints.length} gaze samples</div>
     </div>
   );
 }
@@ -225,6 +226,7 @@ export default function EyeTrackingExperiment() {
   const [factorIdx,  setFactorIdx]  = useState(0);
   const [variantIdx, setVariantIdx] = useState(0);
   const [countdown,  setCountdown]  = useState(5);
+  const [gazeDot,    setGazeDot]    = useState(null); // {x, y} in viewport px during calibration
   // gazeData[factorIdx] = [pointsVariant0, pointsVariant1]
   const [gazeData,   setGazeData]   = useState(() => FACTORS.map(() => [[], []]));
 
@@ -260,13 +262,14 @@ export default function EyeTrackingExperiment() {
   }, []);
 
   /* ── Load WebGazer & start camera ────────────────────────────── */
-  /* Load WebGazer from CDN to avoid Vite/mediapipe bundling issues */
+  /* Loaded as a plain script (public/webgazer.js) to avoid Vite/mediapipe bundling issues.
+     WebGazer exposes itself on window.webgazer; it cannot be imported as an ES module. */
   const loadWG = useCallback(() => new Promise((resolve, reject) => {
     if (window.webgazer) { resolve(window.webgazer); return; }
     const s = document.createElement('script');
-    s.src = '/webgazer.js';
-    s.onload = () => window.webgazer ? resolve(window.webgazer) : reject(new Error('webgazer not on window after script load'));
-    s.onerror = () => reject(new Error('Failed to load WebGazer from CDN'));
+    s.src = `${import.meta.env.BASE_URL}webgazer.js`;
+    s.onload = () => window.webgazer ? resolve(window.webgazer) : reject(new Error('webgazer not found on window after load'));
+    s.onerror = () => reject(new Error('Failed to load WebGazer script'));
     document.head.appendChild(s);
   }), []);
 
@@ -275,25 +278,20 @@ export default function EyeTrackingExperiment() {
     try {
       const wg = await loadWG();
       wgRef.current = wg;
-      wg.params.showVideoPreview  = true;
-      wg.params.showFaceOverlay   = false;
+      wg.params.showVideoPreview    = false;
+      wg.params.showFaceOverlay     = false;
       wg.params.showFaceFeedbackBox = false;
       await wg.begin();
       wg.showPredictionPoints(false);
-      // Position the webcam preview bottom-right, small
+      // Hide the video container WebGazer injects into the DOM
       const vid = document.getElementById('webgazerVideoContainer');
-      if (vid) {
-        Object.assign(vid.style, {
-          position: 'fixed', bottom: '12px', right: '12px',
-          width: '160px', height: '120px',
-          zIndex: 3000, borderRadius: '8px',
-          border: '2px solid #1a8a6a',
-          overflow: 'hidden',
-        });
-      }
+      if (vid) vid.style.display = 'none';
       setPhase('calibrating');
       setCalibIdx(0);
       setCalibClicks(0);
+      wg.setGazeListener((data) => {
+        if (data) setGazeDot({ x: data.x, y: data.y });
+      });
     } catch (e) {
       setErrorMsg('Could not start camera: ' + (e?.message ?? e));
       setPhase('error');
@@ -309,6 +307,8 @@ export default function EyeTrackingExperiment() {
       // Move to next dot
       const nextDot = calibIdx + 1;
       if (nextDot >= CALIB_PTS.length) {
+        wgRef.current?.clearGazeListener();
+        setGazeDot(null);
         setPhase('pretrial');
         setFactorIdx(0);
         setVariantIdx(0);
@@ -336,6 +336,7 @@ export default function EyeTrackingExperiment() {
       const rect = canvas.getBoundingClientRect();
       const lx = data.x - rect.left;
       const ly = data.y - rect.top;
+      setGazeDot({ x: data.x, y: data.y });
       if (lx >= 0 && lx <= rect.width && ly >= 0 && ly <= rect.height) {
         gazeBuffer.current.push({ x: lx, y: ly });
       }
@@ -350,6 +351,7 @@ export default function EyeTrackingExperiment() {
 
     timerRef.current = setTimeout(() => {
       wgRef.current?.clearGazeListener();
+      setGazeDot(null);
       const pts = [...gazeBuffer.current];
       setGazeData(prev => {
         const next = prev.map(f => f.map(v => [...v]));
@@ -386,10 +388,10 @@ export default function EyeTrackingExperiment() {
   const isOverlay = phase !== 'idle' && phase !== 'error' && phase !== 'done';
 
   return (
-    <div style={{ marginTop: 48 }}>
+    <div className="ete-wrapper">
       {/* Entry card */}
       {phase === 'idle' && (
-        <div style={s.entryCard}>
+        <div className="ete-entry-card">
           <div style={{ fontSize: '2.6rem', marginBottom: 10 }}>👁️</div>
           <h3 style={{ margin: '0 0 8px', fontFamily: "'Inter', sans-serif" }}>
             Try It With Your Own Eyes
@@ -398,7 +400,7 @@ export default function EyeTrackingExperiment() {
             Use your webcam to record your actual gaze while viewing two versions of each
             design factor. See how your real scanpath compares to the simulation.
           </p>
-          <div style={s.requiresList}>
+          <div className="ete-requires-list">
             <span>📷 Webcam required</span>
             <span>🔒 All processing is local — no data leaves your browser</span>
             <span>⏱ ~3 minutes to complete</span>
@@ -410,7 +412,7 @@ export default function EyeTrackingExperiment() {
       )}
 
       {phase === 'error' && (
-        <div style={{ ...s.entryCard, borderColor: '#d4553a' }}>
+        <div className="ete-entry-card ete-entry-card--error">
           <p style={{ color: '#d4553a' }}>{errorMsg}</p>
           <button className="btn btn-secondary" onClick={() => setPhase('idle')}>Try again</button>
         </div>
@@ -418,21 +420,21 @@ export default function EyeTrackingExperiment() {
 
       {/* Done summary */}
       {phase === 'done' && (
-        <div style={s.doneCard}>
+        <div className="ete-done-card">
           <div style={{ fontSize: '2rem', marginBottom: 10 }}>🎉</div>
           <h3 style={{ fontFamily: "'Inter', sans-serif", marginBottom: 16 }}>Experiment Complete!</h3>
           {FACTORS.map((f, fi) => (
-            <div key={fi} style={s.resultBlock}>
-              <div style={s.resultHeader}>
+            <div key={fi} className="ete-result-block">
+              <div className="ete-result-header">
                 <span>{f.icon}</span>
                 <strong style={{ fontFamily: "'Inter', sans-serif" }}>{f.name}</strong>
               </div>
-              <div style={s.resultRow}>
+              <div className="ete-result-row">
                 {f.variants.map((v, vi) => (
                   <ResultCanvas key={vi} elements={v.elements} gazePoints={gazeData[fi][vi]} label={v.label} />
                 ))}
               </div>
-              <p style={s.insightText}>💡 {f.insight}</p>
+              <p className="ete-insight-text">💡 {f.insight}</p>
             </div>
           ))}
           <button className="btn btn-secondary" style={{ marginTop: 12 }} onClick={() => {
@@ -446,11 +448,11 @@ export default function EyeTrackingExperiment() {
 
       {/* ── Fullscreen overlay ─────────────────────────────────── */}
       {isOverlay && (
-        <div style={s.overlay}>
+        <div className="ete-overlay">
 
           {/* Loading */}
           {phase === 'loading' && (
-            <div style={s.centreBox}>
+            <div className="ete-centre-box">
               <div style={{ fontSize: '2rem', marginBottom: 12 }}>⏳</div>
               <p style={{ color: '#fff', fontFamily: "'Inter', sans-serif" }}>Starting camera…</p>
             </div>
@@ -459,7 +461,7 @@ export default function EyeTrackingExperiment() {
           {/* Calibration */}
           {phase === 'calibrating' && (
             <>
-              <div style={s.calibInstructions}>
+              <div className="ete-calib-instructions">
                 <strong>Calibration</strong>&nbsp;—&nbsp;
                 Look at each red dot and click it {CLICKS_PER_DOT} times.&nbsp;
                 ({calibIdx + 1} / {CALIB_PTS.length})
@@ -473,20 +475,34 @@ export default function EyeTrackingExperiment() {
                   onClick={i === calibIdx ? handleCalibClick : undefined}
                 />
               ))}
+              {gazeDot && (
+                <div style={{
+                  position: 'fixed',
+                  left: gazeDot.x - 8, top: gazeDot.y - 8,
+                  width: 16, height: 16,
+                  borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.9)',
+                  border: '2px solid rgba(107,92,165,0.8)',
+                  boxShadow: '0 0 6px rgba(107,92,165,0.6)',
+                  pointerEvents: 'none',
+                  zIndex: 2003,
+                  transform: 'translate(0,0)',
+                }} />
+              )}
             </>
           )}
 
           {/* Pre-trial instruction */}
           {phase === 'pretrial' && (
-            <div style={s.centreBox}>
+            <div className="ete-centre-box">
               <div style={{ fontSize: '2rem', marginBottom: 10 }}>{FACTORS[factorIdx].icon}</div>
-              <div style={s.factorLabel}>
+              <div className="ete-factor-label">
                 Factor {factorIdx + 1} / {FACTORS.length} — {FACTORS[factorIdx].name}
               </div>
-              <div style={s.variantBadge}>
+              <div className="ete-variant-badge">
                 Variant {variantIdx + 1} of 2: <strong>&nbsp;{FACTORS[factorIdx].variants[variantIdx].label}</strong>
               </div>
-              <p style={s.hintText}>{FACTORS[factorIdx].variants[variantIdx].hint}</p>
+              <p className="ete-hint-text">{FACTORS[factorIdx].variants[variantIdx].hint}</p>
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem', marginBottom: 20 }}>
                 View the page naturally for {TRIAL_MS / 1000} seconds. Recording starts immediately.
               </p>
@@ -498,29 +514,42 @@ export default function EyeTrackingExperiment() {
 
           {/* Viewing trial */}
           {phase === 'viewing' && (
-            <div style={s.viewingWrap}>
-              <div style={s.viewingBar}>
-                <span style={s.viewingLabel}>
+            <div className="ete-viewing-wrap">
+              <div className="ete-viewing-bar">
+                <span className="ete-viewing-label">
                   {FACTORS[factorIdx].icon}&nbsp;{FACTORS[factorIdx].variants[variantIdx].label}
                 </span>
-                <span style={s.countdownBadge}>{countdown}s</span>
+                <span className="ete-countdown-badge">{countdown}s</span>
               </div>
-              <canvas ref={canvasRef} style={s.trialCanvas} />
+              <canvas ref={canvasRef} className="ete-trial-canvas" />
+              {gazeDot && (
+                <div style={{
+                  position: 'fixed',
+                  left: gazeDot.x - 10, top: gazeDot.y - 10,
+                  width: 20, height: 20,
+                  borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.15)',
+                  border: '2px solid rgba(255,255,255,0.85)',
+                  boxShadow: '0 0 8px rgba(255,255,255,0.5)',
+                  pointerEvents: 'none',
+                  zIndex: 2003,
+                }} />
+              )}
             </div>
           )}
 
           {/* Comparing two variants */}
           {phase === 'comparing' && (
-            <div style={s.compareWrap}>
-              <div style={s.compareHeader}>
+            <div className="ete-compare-wrap">
+              <div className="ete-compare-header">
                 <span style={{ fontSize: '1.4rem' }}>{FACTORS[factorIdx].icon}</span>
                 <h3 style={{ color: '#fff', margin: 0, fontFamily: "'Inter', sans-serif" }}>
                   {FACTORS[factorIdx].name} — Your Gaze
                 </h3>
               </div>
-              <div style={s.compareRow}>
+              <div className="ete-compare-row">
                 {FACTORS[factorIdx].variants.map((v, vi) => (
-                  <div key={vi} style={s.compareCard}>
+                  <div key={vi} className="ete-compare-card">
                     <ResultCanvas
                       elements={v.elements}
                       gazePoints={gazeData[factorIdx][vi]}
@@ -529,7 +558,7 @@ export default function EyeTrackingExperiment() {
                   </div>
                 ))}
               </div>
-              <p style={s.insightOverlay}>💡 {FACTORS[factorIdx].insight}</p>
+              <p className="ete-insight-overlay">💡 {FACTORS[factorIdx].insight}</p>
               <button className="btn btn-primary" onClick={nextFactor}>
                 {factorIdx + 1 < FACTORS.length
                   ? `Next factor →`
@@ -543,125 +572,3 @@ export default function EyeTrackingExperiment() {
     </div>
   );
 }
-
-/* ── Styles ──────────────────────────────────────────────────────*/
-const s = {
-  entryCard: {
-    display: 'flex', flexDirection: 'column', alignItems: 'center',
-    padding: '36px 28px', background: 'var(--bg-card)',
-    border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)',
-    maxWidth: 620, margin: '0 auto',
-  },
-  requiresList: {
-    display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start',
-    fontFamily: "'Inter', sans-serif", fontSize: '0.82rem', color: 'var(--text-muted)',
-  },
-
-  doneCard: {
-    padding: '32px 28px', background: 'var(--bg-card)',
-    border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)',
-    maxWidth: 900, margin: '0 auto',
-    display: 'flex', flexDirection: 'column', alignItems: 'center',
-  },
-  resultBlock: {
-    width: '100%', marginBottom: 28,
-    border: '1px solid var(--border)', borderRadius: 'var(--radius-md)',
-    padding: '18px 18px 14px',
-  },
-  resultHeader: {
-    display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12,
-    fontFamily: "'Inter', sans-serif", fontSize: '1rem',
-  },
-  resultRow: { display: 'flex', gap: 14 },
-  insightText: {
-    marginTop: 10, marginBottom: 0, fontSize: '0.88rem', color: 'var(--text-secondary)',
-  },
-
-  variantLabel: {
-    fontFamily: "'Inter', sans-serif", fontWeight: 700,
-    fontSize: '0.82rem', textAlign: 'center', marginBottom: 6,
-    color: 'var(--text-secondary)',
-  },
-  gazeCount: {
-    fontFamily: "'Inter', sans-serif", fontSize: '0.72rem',
-    color: 'var(--text-muted)', marginTop: 4, textAlign: 'center',
-  },
-
-  // Overlay
-  overlay: {
-    position: 'fixed', inset: 0,
-    background: 'rgba(0,0,0,0.92)',
-    zIndex: 2000,
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    overflow: 'hidden',
-  },
-
-  calibInstructions: {
-    position: 'fixed', top: 16, left: '50%', transform: 'translateX(-50%)',
-    background: 'rgba(0,0,0,0.8)', color: '#fff', padding: '8px 20px',
-    borderRadius: 8, fontFamily: "'Inter', sans-serif", fontSize: '0.85rem',
-    zIndex: 2002, whiteSpace: 'nowrap',
-  },
-
-  centreBox: {
-    display: 'flex', flexDirection: 'column', alignItems: 'center',
-    maxWidth: 480, padding: 32,
-    background: 'rgba(255,255,255,0.06)', borderRadius: 16,
-    border: '1px solid rgba(255,255,255,0.1)',
-  },
-  factorLabel: {
-    fontFamily: "'Inter', sans-serif", fontSize: '0.78rem', fontWeight: 700,
-    textTransform: 'uppercase', letterSpacing: '0.08em',
-    color: 'rgba(255,255,255,0.5)', marginBottom: 8,
-  },
-  variantBadge: {
-    fontFamily: "'Inter', sans-serif", fontSize: '1rem', color: '#fff',
-    marginBottom: 12,
-  },
-  hintText: {
-    color: 'rgba(255,255,255,0.75)', textAlign: 'center',
-    fontFamily: "'Inter', sans-serif", fontSize: '0.9rem', marginBottom: 8,
-  },
-
-  viewingWrap: {
-    position: 'fixed', inset: 0,
-    display: 'flex', flexDirection: 'column',
-  },
-  viewingBar: {
-    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: '8px 20px', background: 'rgba(0,0,0,0.75)',
-    flexShrink: 0,
-  },
-  viewingLabel: {
-    fontFamily: "'Inter', sans-serif", fontSize: '0.85rem', color: '#fff', fontWeight: 600,
-  },
-  countdownBadge: {
-    fontFamily: "'Inter', sans-serif", fontSize: '1.2rem', fontWeight: 800,
-    color: '#d4553a',
-  },
-  trialCanvas: {
-    flex: 1, width: '100%', display: 'block',
-    background: '#fafaf8',
-  },
-
-  compareWrap: {
-    display: 'flex', flexDirection: 'column', alignItems: 'center',
-    width: '90vw', maxWidth: 860, gap: 16,
-    maxHeight: '92vh', overflowY: 'auto',
-    padding: '24px 0',
-  },
-  compareHeader: {
-    display: 'flex', alignItems: 'center', gap: 12,
-  },
-  compareRow: {
-    display: 'flex', gap: 14, width: '100%',
-  },
-  compareCard: {
-    flex: 1, background: 'rgba(255,255,255,0.96)',
-    borderRadius: 10, padding: 12, minWidth: 0,
-  },
-  insightOverlay: {
-    color: 'rgba(255,255,255,0.8)', fontSize: '0.88rem', textAlign: 'center',
-    maxWidth: 600, fontFamily: "'Inter', sans-serif",
-  },
-};

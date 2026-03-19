@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { simulateScanpath, drawPageElements, drawScanpath } from '../utils/scenewalkSimulator';
-import EyeTrackingExperiment from './EyeTrackingExperiment';
+import { simulateScanpath, drawPageElements, drawScanpath } from '../../utils/scenewalkSimulator';
+import EyeTrackingExperiment from '../EyeTrackingExperiment/EyeTrackingExperiment';
+import './FactorsSection.css';
 
 function FactorDemo({ title, description, icon, paramLabel, paramMin, paramMax, paramStep, defaultVal, buildElements, numFixations = 6 }) {
   const ref = useRef(null);
@@ -54,15 +55,15 @@ function FactorDemo({ title, description, icon, paramLabel, paramMin, paramMax, 
   }, [draw]);
 
   return (
-    <div className="card" style={sty.demoCard}>
+    <div className="card fs-demo-card">
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
         <span style={{ fontSize: '1.4rem' }}>{icon}</span>
         <h4 style={{ margin: 0 }}>{title}</h4>
       </div>
       <p style={{ fontSize: '0.9rem', marginBottom: 14 }}>{description}</p>
       <canvas ref={ref} className="demo-canvas" style={{ height: 300, marginBottom: 14 }} />
-      <div style={sty.sliderRow}>
-        <span style={sty.sliderLabel}>
+      <div className="fs-slider-row">
+        <span className="fs-slider-label">
           {paramLabel}:{' '}
           <strong style={{ color: 'var(--accent)' }}>
             {typeof val === 'number' ? (paramStep < 1 ? `${Math.round(val * 100)}%` : val) : val}
@@ -96,7 +97,7 @@ export default function FactorsSection() {
           </p>
         </div>
 
-        <div style={sty.demoGrid}>
+        <div className="fs-demo-grid">
 
           <FactorDemo icon="&#x1F4D0;" title="Visual Hierarchy (Text Size)"
             description="Larger text attracts fixations earlier and longer. Shrink the headline and watch it lose attention priority."
@@ -165,33 +166,63 @@ export default function FactorsSection() {
         </div>
 
         <EyeTrackingExperiment />
+
+        <details className="fs-ref-details">
+          <summary className="fs-ref-summary">
+            <span className="fs-ref-summary-icon">&#x1F9EA;</span>
+            About the simulation model &amp; references
+            <span className="fs-ref-chevron">&#x25BE;</span>
+          </summary>
+          <div className="fs-ref-body">
+            <p style={{ marginTop: 0 }}>
+              <strong>Model note.</strong> The scanpath simulations above are based on the{' '}
+              <em>SceneWalk</em> model of spatial attention during scene viewing. At each step the
+              model combines a <strong>saliency landscape</strong>, a <strong>local-excitation
+              Gaussian</strong> centred on the current gaze position, and a spatially distributed{' '}
+              <strong>Inhibition-of-Return (IOR)</strong> map to produce a probability distribution
+              over the next fixation location (sampled via roulette-wheel selection). A
+              central-fixation bias prior is multiplied into the saliency map, and object-based IOR
+              prevents large elements from capturing all fixations. Fixation durations are drawn
+              from element-type-specific distributions consistent with empirical scene-viewing data.
+              The implementation is a simplified, browser-friendly approximation; it is{' '}
+              <em>not</em> a validated quantitative model.
+            </p>
+            <ul className="fs-ref-list">
+              <li>
+                <strong>Primary reference — </strong>
+                Engbert, R., Trukenbrod, H. A., Barthelmé, S., &amp; Wichmann, F. A. (2015).
+                Spatial statistics and attentional dynamics in scene perception.{' '}
+                Journal of Vision, 15 (1):14, 1–19.{' '}
+                <a href="https://doi.org/10.1167/15.1.14" target="_blank" rel="noreferrer" style={{ color: 'var(--accent)' }}>
+                  doi:10.1167/15.1.14
+                </a>
+              </li>
+              <li>
+                <strong>Extended by — </strong>
+                Schwetlick, L., Rothkegel, L. O. M., Trukenbrod, H. A., &amp; Engbert, R. (2023).
+                A dynamical scan-path model for task-dependence during scene viewing.{' '}
+                Psychological Review, 130 (3), 799–821.{' '}
+                <a href="https://doi.org/10.1037/rev0000379" target="_blank" rel="noreferrer" style={{ color: 'var(--accent)' }}>
+                  doi:10.1037/rev0000379
+                </a>
+              </li>
+              <li>
+                <strong>Central fixation bias — </strong>
+                Tatler, B. W. (2007). The central fixation bias in scene viewing.{' '}
+                Journal of Vision, 7 (14):4.{' '}
+                <a href="https://doi.org/10.1167/7.14.4" target="_blank" rel="noreferrer" style={{ color: 'var(--accent)' }}>
+                  doi:10.1167/7.14.4
+                </a>
+              </li>
+              <li>
+                <strong>Fixation durations — </strong>
+                Rayner, K. (1998). Eye movements in reading and information processing: 20 years of
+                research. Psychological Bulletin, 124 (3), 372–422.
+              </li>
+            </ul>
+          </div>
+        </details>
       </div>
     </section>
   );
 }
-
-const sty = {
-  demoGrid: {
-    display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-    gap: 18, maxWidth: 1060, margin: '0 auto', padding: '0 24px',
-  },
-  demoCard: { display: 'flex', flexDirection: 'column' },
-  sliderRow: { display: 'flex', flexDirection: 'column', gap: 6 },
-  sliderLabel: { fontFamily: "'Inter', sans-serif", fontSize: '0.82rem', color: 'var(--text-secondary)' },
-  summary: {
-    marginTop: 48, padding: '32px 28px', background: 'var(--bg-secondary)',
-    border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)',
-  },
-  eqGrid: {
-    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap',
-  },
-  eqItem: {
-    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
-    padding: '14px 16px', background: 'var(--bg-card)', border: '1px solid var(--border)',
-    borderRadius: 'var(--radius-md)', textAlign: 'center', minWidth: 120,
-  },
-  eqIcon: { fontSize: '1.3rem', marginBottom: 2 },
-  eqDesc: { fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.4 },
-  eqPlus: { fontFamily: "'Inter', sans-serif", fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-light)' },
-  eqEquals: { fontFamily: "'Inter', sans-serif", fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent)' },
-};

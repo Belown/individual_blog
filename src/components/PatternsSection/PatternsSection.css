@@ -1,0 +1,29 @@
+.ps-expl-block {
+  margin-bottom: 24px;
+  padding: 22px 26px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.ps-ref-link {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+  margin-bottom: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.ps-pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.ps-pattern-card {
+  display: flex;
+  flex-direction: column;
+}
