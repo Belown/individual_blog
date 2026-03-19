@@ -1,9 +1,25 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { drawPageElements } from '../../utils/scenewalkSimulator';
 import './EyeTrackingExperiment.css';
+
+/* ── Shared trial page sub-components ────────────────────────────*/
+const TpNav = ({ links = ['Features', 'Pricing', 'Blog'], brand = 'Focusly' }) => (
+  <nav className="tp-nav">
+    <span className="tp-logo">{brand}</span>
+    <div className="tp-nav-links">{links.map(l => <a key={l}>{l}</a>)}</div>
+    <div className="tp-nav-actions">
+      <button className="tp-btn tp-btn-ghost">Sign in</button>
+      <button className="tp-btn tp-btn-green">Try free</button>
+    </div>
+  </nav>
+);
+
+const TpImg = ({ style, label = 'Product screenshot' }) => (
+  <div className="tp-img" style={style}>{label}</div>
+);
 
 /* ── Trial definitions: 2 variants per factor ─────────────────── */
 const FACTORS = [
+  /* ── Factor 1: Visual Hierarchy ──────────────────────────────── */
   {
     name: 'Visual Hierarchy (Text Size)',
     icon: '📐',
@@ -19,6 +35,26 @@ const FACTORS = [
           { type: 'cta',      x: 40, y: 238, width: 160, height: 42, color: '#1a8a6a', brightness: 0.7 },
           { type: 'text',     x: 40, y: 318, width: 720, height: 80 },
         ],
+        content: () => (
+          <div className="tp-page">
+            <TpNav />
+            <div className="tp-hero">
+              <div className="tp-hero-left">
+                <h3 className="tp-headline-sm">Manage your team's work in one place</h3>
+                <p className="tp-body">Focusly gives distributed teams a shared space to plan projects, assign tasks, and track progress — from kickoff to delivery. No more scattered spreadsheets or missed handoffs.</p>
+                <p className="tp-body">Used by over 14,000 teams at companies like Spotify, Notion, and Stripe.</p>
+                <button className="tp-btn tp-btn-green tp-cta">Get Started Free →</button>
+                <p className="tp-fine">Free for 30 days · No credit card required</p>
+              </div>
+              <div className="tp-hero-right">
+                <TpImg label="📊 Product dashboard" />
+              </div>
+            </div>
+            <div className="tp-strip">
+              <span>✓ Task boards</span><span>✓ Timelines</span><span>✓ Reporting</span><span>✓ 50+ integrations</span>
+            </div>
+          </div>
+        ),
       },
       {
         label: 'Large Headline',
@@ -30,9 +66,30 @@ const FACTORS = [
           { type: 'cta',      x: 40, y: 258, width: 160, height: 42, color: '#1a8a6a', brightness: 0.7 },
           { type: 'text',     x: 40, y: 328, width: 720, height: 70 },
         ],
+        content: () => (
+          <div className="tp-page">
+            <TpNav />
+            <div className="tp-hero">
+              <div className="tp-hero-left">
+                <h1 className="tp-headline-lg">Manage your team's work in one place</h1>
+                <p className="tp-body">Focusly gives distributed teams a shared space to plan, track, and ship — without the chaos of scattered emails and missed deadlines.</p>
+                <button className="tp-btn tp-btn-green tp-cta">Get Started Free →</button>
+                <p className="tp-fine">Free for 30 days · No credit card required</p>
+              </div>
+              <div className="tp-hero-right">
+                <TpImg label="📊 Product dashboard" />
+              </div>
+            </div>
+            <div className="tp-strip">
+              <span>✓ Task boards</span><span>✓ Timelines</span><span>✓ Reporting</span><span>✓ 50+ integrations</span>
+            </div>
+          </div>
+        ),
       },
     ],
   },
+
+  /* ── Factor 2: Color & Contrast ───────────────────────────────── */
   {
     name: 'Color & Contrast',
     icon: '🎨',
@@ -40,7 +97,7 @@ const FACTORS = [
     variants: [
       {
         label: 'Cold CTA',
-        hint: 'Cool blue-green call-to-action button',
+        hint: 'Cool blue-green call-to-action — does it stand out?',
         elements: [
           { type: 'headline', x: 40, y: 60, width: 400, height: 50, fontSize: 28, text: 'Our Product', color: '#2c2c2c' },
           { type: 'text',     x: 40, y: 130, width: 400, height: 80 },
@@ -48,6 +105,23 @@ const FACTORS = [
           { type: 'image',    x: 480, y: 60, width: 280, height: 200, size: 1 },
           { type: 'text',     x: 40, y: 330, width: 720, height: 80 },
         ],
+        content: () => (
+          <div className="tp-page">
+            <TpNav links={['Features', 'Pricing', 'Enterprise', 'Blog']} />
+            <div className="tp-hero">
+              <div className="tp-hero-left">
+                <h2 className="tp-headline-md">Your team's work, organised.</h2>
+                <p className="tp-body">Bring tasks, timelines, and conversations into one place. Focusly helps teams of all sizes plan, prioritise, and deliver — without the coordination overhead.</p>
+                <p className="tp-body">Trusted by 14,000+ teams worldwide.</p>
+                <button className="tp-btn tp-btn-green tp-cta">Start for free →</button>
+                <p className="tp-fine">No credit card · Cancel anytime</p>
+              </div>
+              <div className="tp-hero-right">
+                <TpImg label="🗂 Project overview" />
+              </div>
+            </div>
+          </div>
+        ),
       },
       {
         label: 'Warm CTA',
@@ -59,9 +133,28 @@ const FACTORS = [
           { type: 'image',    x: 480, y: 60, width: 280, height: 200, size: 1 },
           { type: 'text',     x: 40, y: 330, width: 720, height: 80 },
         ],
+        content: () => (
+          <div className="tp-page">
+            <TpNav links={['Features', 'Pricing', 'Enterprise', 'Blog']} />
+            <div className="tp-hero">
+              <div className="tp-hero-left">
+                <h2 className="tp-headline-md">Your team's work, organised.</h2>
+                <p className="tp-body">Bring tasks, timelines, and conversations into one place. Focusly helps teams of all sizes plan, prioritise, and deliver — without the coordination overhead.</p>
+                <p className="tp-body">Trusted by 14,000+ teams worldwide.</p>
+                <button className="tp-btn tp-btn-warm tp-cta">Start for free →</button>
+                <p className="tp-fine">No credit card · Cancel anytime</p>
+              </div>
+              <div className="tp-hero-right">
+                <TpImg label="🗂 Project overview" />
+              </div>
+            </div>
+          </div>
+        ),
       },
     ],
   },
+
+  /* ── Factor 3: Image Size & Placement ─────────────────────────── */
   {
     name: 'Image Size & Placement',
     icon: '🖼️',
@@ -77,6 +170,25 @@ const FACTORS = [
           { type: 'cta',      x: 40, y: 200, width: 150, height: 40, color: '#1a8a6a', brightness: 0.6 },
           { type: 'text',     x: 40, y: 280, width: 720, height: 60 },
         ],
+        content: () => (
+          <div className="tp-page">
+            <TpNav links={['Resources', 'Blog', 'About']} />
+            <div className="tp-article">
+              <div className="tp-article-meta">Resources › Guides</div>
+              <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start' }}>
+                <div style={{ flex: 1 }}>
+                  <h2 className="tp-headline-article">The Complete Guide to Running an Async-First Team</h2>
+                  <p className="tp-byline">By Marcus Webb · February 20, 2026 · 8 min read</p>
+                  <p className="tp-body">Async-first teams consistently outperform synchronous ones on project delivery speed, employee satisfaction, and meeting overhead reduction. The shift isn't easy — but the payoff is significant.</p>
+                  <p className="tp-body">This guide covers the five pillars of a high-functioning async culture: clear written communication, reliable documentation, structured check-ins, outcome-based management, and shared tooling that respects time zones.</p>
+                </div>
+                <TpImg style={{ width: 130, height: 97, flexShrink: 0, fontSize: '0.65rem' }} label="📷 Team photo" />
+              </div>
+              <p className="tp-body">Pioneers like GitLab, Automattic, and Basecamp have scaled globally distributed teams of hundreds without a central office — proving co-location isn't a prerequisite for performance.</p>
+              <button className="tp-btn tp-btn-green" style={{ marginTop: 8 }}>Download the full guide →</button>
+            </div>
+          </div>
+        ),
       },
       {
         label: 'Large Image',
@@ -88,9 +200,25 @@ const FACTORS = [
           { type: 'cta',      x: 40, y: 200, width: 150, height: 40, color: '#1a8a6a', brightness: 0.6 },
           { type: 'text',     x: 40, y: 280, width: 720, height: 60 },
         ],
+        content: () => (
+          <div className="tp-page">
+            <TpNav links={['Resources', 'Blog', 'About']} />
+            <div className="tp-article">
+              <div className="tp-article-meta">Resources › Guides</div>
+              <h2 className="tp-headline-article">The Complete Guide to Running an Async-First Team</h2>
+              <p className="tp-byline">By Marcus Webb · February 20, 2026 · 8 min read</p>
+              <TpImg style={{ width: '100%', aspectRatio: '16/6', marginBottom: 20, fontSize: '0.8rem' }} label="📷 Remote team collaboration" />
+              <p className="tp-body">Async-first teams consistently outperform synchronous ones on project delivery speed, employee satisfaction, and meeting overhead reduction. The shift isn't easy — but the payoff is significant.</p>
+              <p className="tp-body">This guide covers the five pillars of a high-functioning async culture: clear written communication, reliable documentation, and outcome-based management.</p>
+              <button className="tp-btn tp-btn-green" style={{ marginTop: 8 }}>Download the full guide →</button>
+            </div>
+          </div>
+        ),
       },
     ],
   },
+
+  /* ── Factor 4: Ads & Visual Noise ─────────────────────────────── */
   {
     name: 'Ads & Visual Noise',
     icon: '📢',
@@ -98,7 +226,7 @@ const FACTORS = [
     variants: [
       {
         label: 'No Ads',
-        hint: 'Clean layout — read naturally',
+        hint: 'Clean article layout — read naturally',
         elements: [
           { type: 'headline', x: 40, y: 50, width: 400, height: 45, fontSize: 28, text: 'Main Content', color: '#2c2c2c' },
           { type: 'text',     x: 40, y: 110, width: 400, height: 80 },
@@ -106,10 +234,25 @@ const FACTORS = [
           { type: 'image',    x: 500, y: 50, width: 260, height: 155, size: 1 },
           { type: 'text',     x: 40, y: 310, width: 720, height: 55 },
         ],
+        content: () => (
+          <div className="tp-page">
+            <TpNav brand="TechReport" links={['World', 'Business', 'Technology', 'Science']} />
+            <div className="tp-article">
+              <div className="tp-article-meta">Technology › Remote Work</div>
+              <h1 className="tp-headline-article" style={{ fontSize: '1.7rem' }}>How AI Is Reshaping the Way Remote Teams Work Together</h1>
+              <p className="tp-byline">By Sarah Chen · March 14, 2026 · 5 min read</p>
+              <TpImg style={{ width: '100%', aspectRatio: '16/5', marginBottom: 18, fontSize: '0.8rem' }} label="🌍 Remote work" />
+              <p className="tp-body">In 2024, remote and hybrid work crossed a new milestone — over 40% of knowledge workers globally operated outside a traditional office for the majority of their workday. But the bigger shift wasn't geographic; it was cognitive.</p>
+              <p className="tp-body">AI-powered tools now draft meeting summaries, flag at-risk tasks, resolve scheduling conflicts, and write first-draft status updates. For distributed teams, the effect is transformative: coordination overhead drops, and the time saved goes toward actual work.</p>
+              <blockquote className="tp-pullquote">"The best async tools don't just record what happened — they surface what matters." — Dr. Ana Reyes, Future of Work Institute</blockquote>
+              <p className="tp-body">A 2025 Gartner study found that teams using AI-augmented project tools reduced internal meeting time by an average of 34%, without a measurable decline in alignment or output quality.</p>
+            </div>
+          </div>
+        ),
       },
       {
         label: 'Four Ads',
-        hint: '4 ad banners — can you stay focused on the content?',
+        hint: '4 ad banners — can you stay focused on the article?',
         elements: [
           { type: 'headline', x: 40, y: 50, width: 400, height: 45, fontSize: 28, text: 'Main Content', color: '#2c2c2c' },
           { type: 'text',     x: 40, y: 110, width: 400, height: 80 },
@@ -121,19 +264,53 @@ const FACTORS = [
           { type: 'ad',       x: 40,  y: 450, width: 340, height: 50, color: '#b04080' },
           { type: 'ad',       x: 400, y: 450, width: 360, height: 50, color: '#6b5ca5' },
         ],
+        content: () => (
+          <div className="tp-page">
+            <TpNav brand="TechReport" links={['World', 'Business', 'Technology', 'Science']} />
+            <div className="tp-ad tp-ad-leaderboard">AD · CloudHost Pro — 99.9% uptime · Trusted by 50,000+ developers · Try free →</div>
+            <div style={{ display: 'flex', gap: 24 }}>
+              <div className="tp-article" style={{ flex: 1, minWidth: 0 }}>
+                <div className="tp-article-meta">Technology › Remote Work</div>
+                <h1 className="tp-headline-article" style={{ fontSize: '1.7rem' }}>How AI Is Reshaping the Way Remote Teams Work Together</h1>
+                <p className="tp-byline">By Sarah Chen · March 14, 2026 · 5 min read</p>
+                <p className="tp-body">In 2024, remote and hybrid work crossed a new milestone — over 40% of knowledge workers globally operated outside a traditional office for the majority of their workday. But the bigger shift wasn't geographic; it was cognitive.</p>
+                <div className="tp-ad tp-ad-mid">AD · TravelPlus · Business travel made simple · Book your next trip →</div>
+                <p className="tp-body">AI-powered tools now draft meeting summaries, flag at-risk tasks, resolve scheduling conflicts, and write first-draft status updates. For distributed teams, the effect is transformative.</p>
+                <blockquote className="tp-pullquote">"The best async tools don't just record what happened — they surface what matters." — Dr. Ana Reyes</blockquote>
+              </div>
+              <div className="tp-ads-sidebar">
+                <div className="tp-ad tp-ad-sidebar">AD · ClearDesk · Ergonomic home office furniture · Shop now</div>
+              </div>
+            </div>
+            <div className="tp-ad tp-ad-bottom">AD · SecureVPN · Protect your remote workforce · From $4/user/month →</div>
+          </div>
+        ),
       },
     ],
   },
 ];
 
 const CALIB_PTS = [
-  { rx: 0.1, ry: 0.1 }, { rx: 0.5, ry: 0.1 }, { rx: 0.9, ry: 0.1 },
+  { rx: 0.18, ry: 0.1 }, { rx: 0.5, ry: 0.1 }, { rx: 0.9, ry: 0.1 },
   { rx: 0.1, ry: 0.5 }, { rx: 0.5, ry: 0.5 }, { rx: 0.9, ry: 0.5 },
   { rx: 0.1, ry: 0.9 }, { rx: 0.5, ry: 0.9 }, { rx: 0.9, ry: 0.9 },
 ];
 
-const TRIAL_MS = 5000;
-const CLICKS_PER_DOT = 3; // clicks needed to confirm each calibration point
+/* Validation points — different positions from calibration grid.
+   All placed outside the 280×210 camera panel at top-left. */
+const VALID_PTS = [
+  { rx: 0.46, ry: 0.32 },  // was (0.3, 0.28) — moved right of camera
+  { rx: 0.75, ry: 0.2  },
+  { rx: 0.5,  ry: 0.6  },
+  { rx: 0.18, ry: 0.75 },
+  { rx: 0.82, ry: 0.7  },
+];
+
+const TRIAL_MS       = 5000;
+const CLICKS_PER_DOT = 5;
+const VALID_MS       = 1600;  // ms to collect gaze samples per validation point
+const VALID_GOOD_PX  = 80;    // avg error < this → "Good"
+const VALID_FAIR_PX  = 140;   // avg error < this → "Fair", else "Poor"
 
 /* ── Heatmap drawing ───────────────────────────────────────────── */
 function drawHeatmap(ctx, pts, cw, ch) {
@@ -142,46 +319,81 @@ function drawHeatmap(ctx, pts, cw, ch) {
   off.width = cw; off.height = ch;
   const oc = off.getContext('2d');
   const r = Math.max(cw, ch) * 0.055;
+  // pts are stored as 0-1 fractions — scale to this canvas's pixel dimensions
   pts.forEach(({ x, y }) => {
-    const g = oc.createRadialGradient(x, y, 0, x, y, r);
+    const px = x * cw, py = y * ch;
+    const g = oc.createRadialGradient(px, py, 0, px, py, r);
     g.addColorStop(0,   'rgba(255,40,0,0.22)');
     g.addColorStop(0.4, 'rgba(255,180,0,0.12)');
     g.addColorStop(1,   'rgba(0,0,255,0)');
     oc.fillStyle = g;
-    oc.beginPath(); oc.arc(x, y, r, 0, Math.PI * 2); oc.fill();
+    oc.beginPath(); oc.arc(px, py, r, 0, Math.PI * 2); oc.fill();
   });
   ctx.save(); ctx.globalAlpha = 0.85; ctx.drawImage(off, 0, 0); ctx.restore();
   ctx.save(); ctx.globalAlpha = 0.55;
   pts.forEach(({ x, y }) => {
+    const px = x * cw, py = y * ch;
     ctx.fillStyle = 'rgba(255,60,0,0.7)';
-    ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI * 2); ctx.fill();
   });
   ctx.restore();
 }
 
-/* ── Result canvas (elements + heatmap) ──────────────────────────*/
-function ResultCanvas({ elements, gazePoints, label }) {
-  const ref = useRef(null);
+/* ── Result card: scaled HTML content + heatmap overlay ──────────*/
+const RESULT_H   = 280;  // fixed display height for result thumbnails
+const CONTENT_W  = 900;  // matches tp-page max-width
+
+function ResultCard({ content, gazePoints, label }) {
+  const containerRef = useRef(null);
+  const canvasRef    = useRef(null);
+  const [scale, setScale] = useState(0);
+
+  // Measure container width after mount to compute scale factor
   useEffect(() => {
-    const canvas = ref.current;
-    if (!canvas) return;
+    if (containerRef.current) {
+      setScale(containerRef.current.offsetWidth / CONTENT_W);
+    }
+  }, []);
+
+  // Redraw heatmap whenever gaze data or scale changes
+  useEffect(() => {
+    const canvas    = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container || scale === 0) return;
+    const w   = container.offsetWidth;
     const dpr = window.devicePixelRatio || 1;
-    const w = canvas.offsetWidth;
-    const h = canvas.offsetHeight;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
+    canvas.width  = w * dpr;
+    canvas.height = RESULT_H * dpr;
+    canvas.style.width  = w + 'px';
+    canvas.style.height = RESULT_H + 'px';
     const ctx = canvas.getContext('2d');
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.fillStyle = '#fafaf8';
-    ctx.fillRect(0, 0, w, h);
-    drawPageElements(ctx, elements, w / 800, h / 600);
-    drawHeatmap(ctx, gazePoints, w, h);
-  }, [elements, gazePoints]);
+    drawHeatmap(ctx, gazePoints, w, RESULT_H);
+  }, [gazePoints, scale]);
 
   return (
     <div style={{ flex: 1, minWidth: 0 }}>
       <div className="ete-variant-label">{label}</div>
-      <canvas ref={ref} className="demo-canvas" style={{ height: 280, display: 'block', width: '100%' }} />
+      <div
+        ref={containerRef}
+        style={{ position: 'relative', height: RESULT_H, overflow: 'hidden',
+                 background: '#fff', borderRadius: 8, border: '1px solid #e8e8e8' }}
+      >
+        {/* Scaled-down replica of the trial page */}
+        {scale > 0 && (
+          <div style={{
+            width: CONTENT_W,
+            transformOrigin: 'top left',
+            transform: `scale(${scale})`,
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}>
+            {content()}
+          </div>
+        )}
+        {/* Heatmap drawn on a transparent canvas on top */}
+        <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
+      </div>
       <div className="ete-gaze-count">{gazePoints.length} gaze samples</div>
     </div>
   );
@@ -207,7 +419,7 @@ function CalibDot({ rx, ry, idx, done, active, clicksLeft, onClick }) {
         fontFamily: "'Inter', sans-serif",
         transition: 'background 200ms, transform 100ms',
         transform: active ? 'scale(1.1)' : 'scale(1)',
-        zIndex: 2001,
+        zIndex: 2010,
         userSelect: 'none',
       }}
     >
@@ -216,25 +428,85 @@ function CalibDot({ rx, ry, idx, done, active, clicksLeft, onClick }) {
   );
 }
 
+/* ── Camera face-position guide overlay ──────────────────────────*/
+const CAM_W = 280, CAM_H = 210;
+function CamGuide() {
+  return (
+    <svg
+      style={{ position: 'fixed', top: 0, left: 0, width: CAM_W, height: CAM_H, zIndex: 2006, pointerEvents: 'none' }}
+      viewBox={`0 0 ${CAM_W} ${CAM_H}`}
+    >
+      <defs>
+        <mask id="face-oval-mask">
+          <rect width={CAM_W} height={CAM_H} fill="white" />
+          <ellipse cx={CAM_W / 2} cy={CAM_H / 2 - 5} rx="72" ry="88" fill="black" />
+        </mask>
+      </defs>
+      {/* Dim outside the oval */}
+      <rect width={CAM_W} height={CAM_H} fill="rgba(0,0,0,0.38)" mask="url(#face-oval-mask)" />
+      {/* Dashed guide oval */}
+      <ellipse
+        cx={CAM_W / 2} cy={CAM_H / 2 - 5} rx="72" ry="88"
+        fill="none"
+        stroke="rgba(255,255,255,0.75)"
+        strokeWidth="2"
+        strokeDasharray="8 5"
+      />
+      {/* Label */}
+      <text x={CAM_W / 2} y={CAM_H - 7} textAnchor="middle" fill="rgba(255,255,255,0.55)" fontSize="10" fontFamily="Inter, sans-serif">
+        centre your face here
+      </text>
+    </svg>
+  );
+}
+
+/* ── Face detection badge ────────────────────────────────────────*/
+function FaceDetectionBadge({ detected }) {
+  return (
+    <div className="ete-face-badge">
+      <span className={`ete-face-dot ${detected ? 'ete-face-dot--ok' : 'ete-face-dot--no'}`} />
+      <span className="ete-face-label">
+        {detected ? 'Face detected' : 'No face detected'}
+      </span>
+    </div>
+  );
+}
+
 /* ── Main component ──────────────────────────────────────────────*/
 export default function EyeTrackingExperiment() {
-  // phase: idle | loading | calibrating | pretrial | viewing | comparing | done | error
-  const [phase,      setPhase]      = useState('idle');
-  const [errorMsg,   setErrorMsg]   = useState('');
-  const [calibIdx,   setCalibIdx]   = useState(0);   // which dot we're on
-  const [calibClicks, setCalibClicks] = useState(0); // clicks on current dot
-  const [factorIdx,  setFactorIdx]  = useState(0);
-  const [variantIdx, setVariantIdx] = useState(0);
-  const [countdown,  setCountdown]  = useState(5);
-  const [gazeDot,    setGazeDot]    = useState(null); // {x, y} in viewport px during calibration
-  // gazeData[factorIdx] = [pointsVariant0, pointsVariant1]
-  const [gazeData,   setGazeData]   = useState(() => FACTORS.map(() => [[], []]));
+  // phase: idle | loading | calibrating | validating | validation_result | pretrial | viewing | comparing | done | error
+  const [phase,        setPhase]        = useState('idle');
+  const [errorMsg,     setErrorMsg]     = useState('');
+  const [calibIdx,     setCalibIdx]     = useState(0);
+  const [calibClicks,  setCalibClicks]  = useState(0);
+  const [factorIdx,    setFactorIdx]    = useState(0);
+  const [variantIdx,   setVariantIdx]   = useState(0);
+  const [countdown,    setCountdown]    = useState(5);
+  const [gazeDot,      setGazeDot]      = useState(null);
+  const [gazeData,     setGazeData]     = useState(() => FACTORS.map(() => [[], []]));
+  const [validIdx,     setValidIdx]     = useState(0);
+  const [validErrors,  setValidErrors]  = useState([]);
+  const [faceDetected, setFaceDetected] = useState(false);
 
-  const canvasRef    = useRef(null);
-  const gazeBuffer   = useRef([]);
-  const timerRef     = useRef(null);
-  const cdRef        = useRef(null);
-  const wgRef        = useRef(null); // webgazer instance
+  const trialRef               = useRef(null); // the live trial content div
+  const gazeBuffer             = useRef([]);
+  const gazeSmoothed           = useRef(null); // EMA-smoothed gaze position
+
+  // Exponential moving average — blends 35% new signal with 65% previous.
+  // Lower alpha = smoother but more lag; raise toward 1.0 for raw output.
+  const smooth = useCallback((raw) => {
+    const ALPHA = 0.35;
+    const prev  = gazeSmoothed.current;
+    const next  = prev
+      ? { x: prev.x + ALPHA * (raw.x - prev.x), y: prev.y + ALPHA * (raw.y - prev.y) }
+      : raw;
+    gazeSmoothed.current = next;
+    return next;
+  }, []);
+  const timerRef               = useRef(null);
+  const cdRef                  = useRef(null);
+  const wgRef                  = useRef(null);
+  const startValidationPtRef   = useRef(null); // forward ref for recursive scheduling
 
   /* ── Cleanup on unmount ──────────────────────────────────────── */
   useEffect(() => {
@@ -245,25 +517,8 @@ export default function EyeTrackingExperiment() {
     };
   }, []);
 
-  /* ── Draw trial canvas ───────────────────────────────────────── */
-  const drawTrial = useCallback((elements) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const dpr = window.devicePixelRatio || 1;
-    const w = canvas.offsetWidth;
-    const h = canvas.offsetHeight;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    const ctx = canvas.getContext('2d');
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.fillStyle = '#fafaf8';
-    ctx.fillRect(0, 0, w, h);
-    drawPageElements(ctx, elements, w / 800, h / 600);
-  }, []);
 
   /* ── Load WebGazer & start camera ────────────────────────────── */
-  /* Loaded as a plain script (public/webgazer.js) to avoid Vite/mediapipe bundling issues.
-     WebGazer exposes itself on window.webgazer; it cannot be imported as an ES module. */
   const loadWG = useCallback(() => new Promise((resolve, reject) => {
     if (window.webgazer) { resolve(window.webgazer); return; }
     const s = document.createElement('script');
@@ -278,25 +533,54 @@ export default function EyeTrackingExperiment() {
     try {
       const wg = await loadWG();
       wgRef.current = wg;
-      wg.params.showVideoPreview    = false;
-      wg.params.showFaceOverlay     = false;
-      wg.params.showFaceFeedbackBox = false;
+      wg.params.showVideoPreview    = true;
+      wg.params.showFaceOverlay     = true;
+      wg.params.showFaceFeedbackBox = false; // we draw our own face-position guide
       await wg.begin();
       wg.showPredictionPoints(false);
-      // Hide the video container WebGazer injects into the DOM
+      wg.applyKalmanFilter(true);
+      // Reposition the injected video container to the top-left (matching the
+      // official WebGazer demo). Size it at a 4:3 ratio so the full feed shows.
       const vid = document.getElementById('webgazerVideoContainer');
-      if (vid) vid.style.display = 'none';
+      if (vid) {
+        Object.assign(vid.style, {
+          position:      'fixed',
+          top:           '0',
+          left:          '0',
+          bottom:        'auto',
+          right:         'auto',
+          width:         '280px',
+          height:        '210px',
+          borderRadius:  '0 0 10px 0',
+          overflow:      'hidden',
+          border:        'none',
+          borderRight:   '2px solid rgba(255,255,255,0.15)',
+          borderBottom:  '2px solid rgba(255,255,255,0.15)',
+          zIndex:        '2004',
+          display:       'block',
+        });
+        // Make the video & face-overlay canvas fill the container without cropping
+        vid.querySelectorAll('video, canvas').forEach(el => {
+          el.style.width    = '100%';
+          el.style.height   = '100%';
+          el.style.position = 'absolute';
+          el.style.top      = '0';
+          el.style.left     = '0';
+        });
+      }
       setPhase('calibrating');
       setCalibIdx(0);
       setCalibClicks(0);
       wg.setGazeListener((data) => {
-        if (data) setGazeDot({ x: data.x, y: data.y });
+        setFaceDetected(!!data);
+        if (data) setGazeDot(smooth({ x: data.x, y: data.y }));
+        else setGazeDot(null);
       });
     } catch (e) {
       setErrorMsg('Could not start camera: ' + (e?.message ?? e));
       setPhase('error');
     }
-  }, []);
+  }, [loadWG]);
 
   /* ── Calibration click ───────────────────────────────────────── */
   const handleCalibClick = useCallback(() => {
@@ -304,14 +588,14 @@ export default function EyeTrackingExperiment() {
     if (next < CLICKS_PER_DOT) {
       setCalibClicks(next);
     } else {
-      // Move to next dot
       const nextDot = calibIdx + 1;
       if (nextDot >= CALIB_PTS.length) {
+        // Calibration done → run accuracy validation
         wgRef.current?.clearGazeListener();
         setGazeDot(null);
-        setPhase('pretrial');
-        setFactorIdx(0);
-        setVariantIdx(0);
+        setValidErrors([]);
+        setPhase('validating');
+        setTimeout(() => startValidationPtRef.current?.(0), 400);
       } else {
         setCalibIdx(nextDot);
         setCalibClicks(0);
@@ -319,26 +603,99 @@ export default function EyeTrackingExperiment() {
     }
   }, [calibClicks, calibIdx]);
 
+  /* ── Validation point (auto-timed, recursive via ref) ────────── */
+  const startValidationPoint = useCallback((idx) => {
+    setValidIdx(idx);
+    const buf = [];
+
+    wgRef.current?.setGazeListener((data) => {
+      setFaceDetected(!!data);
+      if (data) {
+        const s = smooth({ x: data.x, y: data.y });
+        setGazeDot(s);
+        buf.push(s);
+      } else {
+        setGazeDot(null);
+      }
+    });
+
+    timerRef.current = setTimeout(() => {
+      wgRef.current?.clearGazeListener();
+      setGazeDot(null);
+
+      const pt = VALID_PTS[idx];
+      const cx = pt.rx * window.innerWidth;
+      const cy = pt.ry * window.innerHeight;
+
+      const err = buf.length === 0
+        ? 999
+        : Math.hypot(
+            buf.reduce((s, p) => s + p.x, 0) / buf.length - cx,
+            buf.reduce((s, p) => s + p.y, 0) / buf.length - cy,
+          );
+
+      setValidErrors(prev => [...prev, err]);
+
+      if (idx + 1 < VALID_PTS.length) {
+        timerRef.current = setTimeout(() => startValidationPtRef.current?.(idx + 1), 450);
+      } else {
+        setPhase('validation_result');
+      }
+    }, VALID_MS);
+  }, []); // stable: only refs and stable setState calls
+
+  useEffect(() => {
+    startValidationPtRef.current = startValidationPoint;
+  }, [startValidationPoint]);
+
+  /* ── Recalibrate ─────────────────────────────────────────────── */
+  const handleRecalibrate = useCallback(() => {
+    clearTimeout(timerRef.current);
+    wgRef.current?.clearData?.(); // reset WebGazer's training data
+    setPhase('calibrating');
+    setCalibIdx(0);
+    setCalibClicks(0);
+    setValidErrors([]);
+    // Re-show camera preview
+    const vid = document.getElementById('webgazerVideoContainer');
+    if (vid) vid.style.display = 'block';
+
+    // Re-enable mouse event listeners so click training works during recalibration
+    wgRef.current?.addMouseEventListeners?.();
+    wgRef.current?.setGazeListener((data) => {
+      setFaceDetected(!!data);
+      if (data) setGazeDot(smooth({ x: data.x, y: data.y }));
+      else setGazeDot(null);
+    });
+  }, [smooth]);
+
   /* ── Start a viewing trial ───────────────────────────────────── */
   const startViewing = useCallback(() => {
-    const elements = FACTORS[factorIdx].variants[variantIdx].elements;
     gazeBuffer.current = [];
     setPhase('viewing');
     setCountdown(Math.ceil(TRIAL_MS / 1000));
 
-    // Slight delay so canvas mounts first
-    setTimeout(() => drawTrial(elements), 80);
+    // Hide camera preview during trials — it would distract from gaze recording
+    const vid = document.getElementById('webgazerVideoContainer');
+    if (vid) vid.style.display = 'none';
+
+    // Stop WebGazer from treating mouse movement as gaze training data.
+    // Without this, moving the mouse shifts the gaze prediction even if
+    // the user's eyes haven't moved.
+    wgRef.current?.removeMouseEventListeners?.();
 
     wgRef.current?.setGazeListener((data) => {
       if (!data) return;
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const rect = canvas.getBoundingClientRect();
-      const lx = data.x - rect.left;
-      const ly = data.y - rect.top;
-      setGazeDot({ x: data.x, y: data.y });
+      const el = trialRef.current;
+      if (!el) return;
+      const s    = smooth({ x: data.x, y: data.y });
+      const rect = el.getBoundingClientRect();
+      const lx = s.x - rect.left;
+      const ly = s.y - rect.top;
+      setGazeDot(s);
       if (lx >= 0 && lx <= rect.width && ly >= 0 && ly <= rect.height) {
-        gazeBuffer.current.push({ x: lx, y: ly });
+        // Store as 0-1 fractions so they scale correctly to any result canvas size
+        gazeBuffer.current.push({ x: lx / rect.width, y: ly / rect.height });
       }
     });
 
@@ -359,15 +716,13 @@ export default function EyeTrackingExperiment() {
         return next;
       });
       if (variantIdx === 0) {
-        // Go to second variant
         setVariantIdx(1);
         setPhase('pretrial');
       } else {
-        // Both variants done → compare
         setPhase('comparing');
       }
     }, TRIAL_MS);
-  }, [factorIdx, variantIdx, drawTrial]);
+  }, [factorIdx, variantIdx, smooth]);
 
   /* ── Next factor ─────────────────────────────────────────────── */
   const nextFactor = useCallback(() => {
@@ -386,6 +741,15 @@ export default function EyeTrackingExperiment() {
 
   /* ── Overlay backdrop ────────────────────────────────────────── */
   const isOverlay = phase !== 'idle' && phase !== 'error' && phase !== 'done';
+  const showFaceBadge = phase === 'loading' || phase === 'calibrating' || phase === 'validating';
+
+  /* ── Validation result helpers ───────────────────────────────── */
+  const validAvg = (() => {
+    const finite = validErrors.filter(e => e < 999);
+    return finite.length ? finite.reduce((s, e) => s + e, 0) / finite.length : 999;
+  })();
+  const validRating = validAvg < VALID_GOOD_PX ? 'Good' : validAvg < VALID_FAIR_PX ? 'Fair' : 'Poor';
+  const validRatingColor = { Good: '#3ddc84', Fair: '#f0a500', Poor: '#d4553a' }[validRating];
 
   return (
     <div className="ete-wrapper">
@@ -431,7 +795,7 @@ export default function EyeTrackingExperiment() {
               </div>
               <div className="ete-result-row">
                 {f.variants.map((v, vi) => (
-                  <ResultCanvas key={vi} elements={v.elements} gazePoints={gazeData[fi][vi]} label={v.label} />
+                  <ResultCard key={vi} content={v.content} gazePoints={gazeData[fi][vi]} label={v.label} />
                 ))}
               </div>
               <p className="ete-insight-text">💡 {f.insight}</p>
@@ -450,11 +814,18 @@ export default function EyeTrackingExperiment() {
       {isOverlay && (
         <div className="ete-overlay">
 
+          {/* ── Face detection badge (option 6) ────────────────── */}
+          {showFaceBadge && <FaceDetectionBadge detected={faceDetected} />}
+          {(phase === 'calibrating' || phase === 'validating') && <CamGuide />}
+
           {/* Loading */}
           {phase === 'loading' && (
             <div className="ete-centre-box">
               <div style={{ fontSize: '2rem', marginBottom: 12 }}>⏳</div>
               <p style={{ color: '#fff', fontFamily: "'Inter', sans-serif" }}>Starting camera…</p>
+              <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.78rem', fontFamily: "'Inter', sans-serif", marginTop: 8 }}>
+                Watch the badge in the top-right corner — it turns green once your face is detected.
+              </p>
             </div>
           )}
 
@@ -463,33 +834,123 @@ export default function EyeTrackingExperiment() {
             <>
               <div className="ete-calib-instructions">
                 <strong>Calibration</strong>&nbsp;—&nbsp;
-                Look at each red dot and click it {CLICKS_PER_DOT} times.&nbsp;
-                ({calibIdx + 1} / {CALIB_PTS.length})
+                Look at each red dot, then click it {CLICKS_PER_DOT} times.&nbsp;
+                ({calibIdx + 1}&nbsp;/&nbsp;{CALIB_PTS.length})
               </div>
-              {CALIB_PTS.map((pt, i) => (
+              {/* Camera preview label — sits above the WebGazer video container */}
+              <div className="ete-cam-label">
+                <span className="ete-cam-label-icon">📷</span>
+                Keep your face centred in the box
+              </div>
+              {CALIB_PTS.map((pt, i) => {
+                // Nudge any dot that falls inside the camera panel (top-left 280×210)
+                // so it appears adjacent to the camera instead of hidden behind it.
+                let dotX = pt.rx * window.innerWidth;
+                let dotY = pt.ry * window.innerHeight;
+                return (
                 <CalibDot
-                  key={i} rx={pt.rx} ry={pt.ry} idx={i}
+                  key={i} rx={dotX / window.innerWidth} ry={dotY / window.innerHeight} idx={i}
                   done={i < calibIdx}
                   active={i === calibIdx}
                   clicksLeft={CLICKS_PER_DOT - calibClicks}
                   onClick={i === calibIdx ? handleCalibClick : undefined}
                 />
-              ))}
+                );
+              })}
               {gazeDot && (
-                <div style={{
-                  position: 'fixed',
-                  left: gazeDot.x - 8, top: gazeDot.y - 8,
-                  width: 16, height: 16,
-                  borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.9)',
-                  border: '2px solid rgba(107,92,165,0.8)',
-                  boxShadow: '0 0 6px rgba(107,92,165,0.6)',
-                  pointerEvents: 'none',
-                  zIndex: 2003,
-                  transform: 'translate(0,0)',
-                }} />
+                <div className="ete-gaze-cursor" style={{ left: gazeDot.x - 8, top: gazeDot.y - 8 }} />
               )}
             </>
+          )}
+
+          {/* ── Validation phase (option 1) ──────────────────────*/}
+          {phase === 'validating' && (
+            <>
+              <div className="ete-calib-instructions">
+                <strong>Accuracy check</strong>&nbsp;—&nbsp;
+                Look at the dot and hold still. ({validIdx + 1}&nbsp;/&nbsp;{VALID_PTS.length})
+              </div>
+              <div className="ete-cam-label">
+                <span className="ete-cam-label-icon">📷</span>
+                Keep your face centred in the box
+              </div>
+              {/* Validation dot — key forces animation restart on each point */}
+              <div
+                key={`vdot-${validIdx}`}
+                className="ete-valid-dot"
+                style={{
+                  left: VALID_PTS[validIdx].rx * window.innerWidth - 20,
+                  top:  VALID_PTS[validIdx].ry * window.innerHeight - 20,
+                  animationDuration: `${VALID_MS}ms`,
+                }}
+              />
+              {/* Progress bar draining left-to-right */}
+              <div className="ete-valid-progress-track">
+                <div
+                  key={`vprog-${validIdx}`}
+                  className="ete-valid-progress-bar"
+                  style={{ animationDuration: `${VALID_MS}ms` }}
+                />
+              </div>
+              {gazeDot && (
+                <div className="ete-gaze-cursor" style={{ left: gazeDot.x - 8, top: gazeDot.y - 8 }} />
+              )}
+            </>
+          )}
+
+          {/* ── Validation result (option 1) ─────────────────────*/}
+          {phase === 'validation_result' && (
+            <div className="ete-centre-box" style={{ maxWidth: 480, gap: 18 }}>
+              <div style={{ fontSize: '1.5rem' }}>🎯</div>
+              <h3 style={{ color: '#fff', margin: 0, fontFamily: "'Inter', sans-serif" }}>
+                Calibration Accuracy
+              </h3>
+              {/* Per-point coloured dots */}
+              <div className="ete-valid-dots-row">
+                {validErrors.map((err, i) => {
+                  const col = err >= 999
+                    ? '#777'
+                    : err < VALID_GOOD_PX  ? '#3ddc84'
+                    : err < VALID_FAIR_PX  ? '#f0a500'
+                    :                        '#d4553a';
+                  return (
+                    <div key={i} className="ete-valid-result-item">
+                      <div className="ete-valid-result-dot" style={{ background: col }}>
+                        {err >= 999 ? '?' : Math.round(err)}
+                      </div>
+                      <span className="ete-valid-result-label">pt {i + 1}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Summary */}
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '1.05rem', fontFamily: "'Inter', sans-serif", color: validRatingColor, fontWeight: 700 }}>
+                  {validRating} — avg {validAvg < 999 ? Math.round(validAvg) : '?'} px error
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.5)', fontFamily: "'Inter', sans-serif", marginTop: 6, maxWidth: 360 }}>
+                  {validRating === 'Poor'
+                    ? 'Accuracy is low — recalibrating should improve gaze data quality.'
+                    : validRating === 'Fair'
+                    ? 'Accuracy is acceptable. You can proceed or recalibrate for better results.'
+                    : 'Great accuracy! Your eye tracking is ready.'}
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
+                <button className="btn btn-secondary" onClick={handleRecalibrate}>
+                  Recalibrate
+                </button>
+                <button className="btn btn-primary" onClick={() => {
+                  const vid = document.getElementById('webgazerVideoContainer');
+                  if (vid) vid.style.display = 'none';
+                  setPhase('pretrial');
+                  setFactorIdx(0);
+                  setVariantIdx(0);
+                }}>
+                  Start experiment →
+                </button>
+              </div>
+            </div>
           )}
 
           {/* Pre-trial instruction */}
@@ -521,18 +982,20 @@ export default function EyeTrackingExperiment() {
                 </span>
                 <span className="ete-countdown-badge">{countdown}s</span>
               </div>
-              <canvas ref={canvasRef} className="ete-trial-canvas" />
+              <div ref={trialRef} className="ete-trial-content">
+                {FACTORS[factorIdx].variants[variantIdx].content()}
+              </div>
               {gazeDot && (
                 <div style={{
                   position: 'fixed',
                   left: gazeDot.x - 10, top: gazeDot.y - 10,
                   width: 20, height: 20,
                   borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.15)',
-                  border: '2px solid rgba(255,255,255,0.85)',
-                  boxShadow: '0 0 8px rgba(255,255,255,0.5)',
+                  background: 'rgba(212,85,58,0.25)',
+                  border: '2px solid rgba(212,85,58,0.9)',
+                  boxShadow: '0 0 8px rgba(212,85,58,0.5)',
                   pointerEvents: 'none',
-                  zIndex: 2003,
+                  zIndex: 3003,
                 }} />
               )}
             </div>
@@ -550,8 +1013,8 @@ export default function EyeTrackingExperiment() {
               <div className="ete-compare-row">
                 {FACTORS[factorIdx].variants.map((v, vi) => (
                   <div key={vi} className="ete-compare-card">
-                    <ResultCanvas
-                      elements={v.elements}
+                    <ResultCard
+                      content={v.content}
                       gazePoints={gazeData[factorIdx][vi]}
                       label={v.label}
                     />
