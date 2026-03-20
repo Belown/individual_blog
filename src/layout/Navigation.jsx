@@ -42,10 +42,7 @@ export default function Navigation() {
             <button
               key={sec.id}
               onClick={() => scrollTo(sec.id)}
-              style={{
-                ...s.link,
-                ...(active === sec.id ? s.linkActive : {}),
-              }}
+              className={`nav-link${active === sec.id ? ' nav-link--active' : ''}`}
             >
               {sec.label}
             </button>
@@ -81,7 +78,7 @@ const s = {
     fontFamily: "'Inter', sans-serif", fontSize: '0.95rem', fontWeight: 700,
     color: '#2c2c2c',
   },
-  links: { display: 'flex', alignItems: 'center', gap: 2 },
+  links: { display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' },
   link: {
     padding: '6px 14px', border: 'none', borderRadius: 6,
     background: 'transparent', color: '#888',

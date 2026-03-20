@@ -1,7 +1,7 @@
 /* ── Hero ── */
 .is-hero {
   position: relative;
-  background: #2c2c2c;
+  background: var(--bg-hero);
   min-height: 340px;
   display: flex;
   align-items: center;
@@ -26,6 +26,7 @@
   text-transform: uppercase;
   margin: 0;
   line-height: 1.1;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
 }
 
 .is-hero-subtitle {
@@ -54,6 +55,7 @@
   max-width: 640px;
   margin: 0 auto 40px;
   color: var(--text-secondary);
+  text-align-last: left;
 }
 
 /* ── Section title ── */
@@ -72,6 +74,10 @@
 
 .is-concept-card {
   text-align: center;
+  transition: transform 200ms ease;
+}
+.is-concept-card:hover {
+  transform: translateY(-2px);
 }
 
 .is-concept-icon {
@@ -94,6 +100,10 @@
   min-height: 90px;
   text-align: center;
   transition: all 200ms ease;
+}
+.is-ht-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-sm);
 }
 
 .is-ht-card-year {
@@ -213,4 +223,16 @@
 .is-app-icon {
   font-size: 1.6rem;
   margin-bottom: 6px;
+}
+
+.is-ht-card-link:hover {
+  text-decoration: underline;
+  color: var(--accent-hover);
+}
+
+@media (max-width: 680px) {
+  .is-hero-content { padding: 40px 16px 36px; }
+  .is-lead-text { text-align: left; font-size: 1rem; }
+  .is-concept-grid { grid-template-columns: 1fr 1fr; }
+  .is-app-grid { grid-template-columns: 1fr; }
 }

@@ -4,6 +4,7 @@
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
+  transition: border-color 200ms ease, box-shadow 200ms ease;
 }
 
 .ps-ref-link {
@@ -26,4 +27,21 @@
 .ps-pattern-card {
   display: flex;
   flex-direction: column;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.ps-pattern-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.ps-expl-block:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 680px) {
+  .ps-pattern-grid {
+    grid-template-columns: 1fr;
+    padding: 0 16px;
+  }
 }

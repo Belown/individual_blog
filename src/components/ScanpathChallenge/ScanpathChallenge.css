@@ -15,6 +15,10 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   margin-bottom: 28px;
+  transition: border-color 200ms ease;
+}
+.sc-brief:hover {
+  border-color: var(--border-hover);
 }
 
 .sc-brief-icon {
@@ -33,7 +37,7 @@
 /* ── Two-column layout ──────────────────────────────────────────────────────── */
 .sc-layout {
   display: grid;
-  grid-template-columns: 268px 1fr;
+  grid-template-columns: 260px 1fr;
   gap: 22px;
   align-items: start;
 }
@@ -42,7 +46,7 @@
   .sc-layout { grid-template-columns: 1fr; }
 }
 
-/* ── Left panel ─────────────────────────────────────────────────────────────── */
+/* ── Left panel: controls ───────────────────────────────────────────────────── */
 .sc-panel {
   display: flex;
   flex-direction: column;
@@ -51,6 +55,8 @@
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 12px;
+  position: sticky;
+  top: 72px;
 }
 
 .sc-section-label {
@@ -180,10 +186,63 @@
   border-color: var(--border-hover);
 }
 
-/* ── Results strip (below canvas) ───────────────────────────────────────────── */
+/* ── Right: canvas column ───────────────────────────────────────────────────── */
+.sc-canvas-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sc-canvas {
+  display: block;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #fafaf8;
+}
+
+/* ── Canvas legend ──────────────────────────────────────────────────────────── */
+.sc-legend {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+}
+
+.sc-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.sc-legend-line {
+  display: inline-block;
+  width: 28px;
+  height: 2px;
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+.sc-legend-line--ref {
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(150,140,130,0.6) 0px,
+    rgba(150,140,130,0.6) 5px,
+    transparent 5px,
+    transparent 9px
+  );
+}
+
+.sc-legend-line--user {
+  background: rgba(107, 92, 165, 0.8);
+}
+
+/* ── Results strip ──────────────────────────────────────────────────────────── */
 .sc-results {
   display: grid;
-  grid-template-columns: 100px 1fr auto;
+  grid-template-columns: 96px 1fr auto;
   gap: 18px;
   align-items: start;
   padding: 16px 20px;
@@ -204,10 +263,7 @@
   gap: 5px;
 }
 
-.sc-score-ring {
-  width: 76px;
-  height: 76px;
-}
+.sc-score-ring { width: 76px; height: 76px; }
 
 .sc-score-label {
   font-size: 0.7rem;
@@ -216,55 +272,26 @@
   transition: color 380ms ease;
 }
 
-/* Sequences */
-.sc-results-seqs {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding-top: 2px;
-}
-
-.sc-seq-block {
+/* DTW info */
+.sc-dtw-info {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  padding-top: 2px;
 }
 
-.sc-seq-label {
-  font-size: 0.66rem;
+.sc-dtw-title {
+  font-size: 0.75rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--text-light);
-}
-
-.sc-seq {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 3px;
-  line-height: 1;
-}
-
-.sc-seq-item {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.sc-chip {
-  display: inline-block;
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-size: 0.71rem;
-  font-weight: 700;
+  color: var(--text-primary);
   letter-spacing: 0.01em;
-  white-space: nowrap;
 }
 
-.sc-arrow {
-  font-size: 0.7rem;
-  color: var(--text-light);
+.sc-dtw-body {
+  font-size: 0.77rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0;
 }
 
 /* Tip */
@@ -277,7 +304,7 @@
   font-size: 0.77rem;
   line-height: 1.55;
   color: var(--text-secondary);
-  max-width: 240px;
+  max-width: 220px;
 }
 
 .sc-tip-icon {
@@ -286,24 +313,12 @@
   margin-top: 1px;
 }
 
-/* ── Canvas ─────────────────────────────────────────────────────────────────── */
-.sc-canvas-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+/* Smooth score ring transition */
+.sc-score-ring circle {
+  transition: stroke-dashoffset 400ms ease;
 }
 
-.sc-canvas {
-  display: block;
-  width: 100%;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: #fafaf8;
-}
-
-.sc-canvas-caption {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  text-align: center;
-  margin: 0;
+@media (max-width: 680px) {
+  .sc-results { grid-template-columns: 1fr; gap: 12px; }
+  .sc-tip { max-width: none; }
 }
