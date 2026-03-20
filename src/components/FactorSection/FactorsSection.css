@@ -39,9 +39,9 @@
   gap: 8px;
   cursor: pointer;
   padding: 12px 18px;
-  font-size: 0.82rem;
+  font-size: 1rem;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: black;
   list-style: none;
   user-select: none;
 }
@@ -58,7 +58,7 @@
 
 .fs-ref-body {
   padding: 4px 20px 18px;
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   line-height: 1.75;
   color: var(--text-secondary);
   border-top: 1px solid var(--border);

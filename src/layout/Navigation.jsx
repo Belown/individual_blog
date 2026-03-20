@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-
+import eyeIcon from "../assets/eye.svg";
 const sections = [
   { id: 'intro', label: 'What is Eye Tracking' },
   { id: 'patterns', label: 'Gaze Patterns' },
@@ -34,7 +34,7 @@ export default function Navigation() {
     <nav style={{ ...s.nav, ...(scrolled ? s.navScrolled : {}) }}>
       <div style={s.inner}>
         <div style={s.brand} onClick={() => scrollTo('intro')}>
-          <span style={s.brandIcon}>👁</span>
+          <img src={eyeIcon} alt="Eye tracker icon" style={{ width: '2.5em', height: '2.5em' }} />
           <span style={s.brandText}>EyeTrack Explorer</span>
         </div>
         <div style={s.links}>

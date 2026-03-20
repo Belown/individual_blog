@@ -52,9 +52,23 @@
   display: flex;
   gap: 8px;
   align-items: center;
-  margin-bottom: 12px;
+  width: 100%;
+  margin-bottom: 0;
+  padding: 4px 2px;
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
+  background: none;
+  border: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.ete-result-header:hover {
+  background: var(--bg-hover, rgba(0,0,0,0.04));
+}
+.ete-result-header[aria-expanded="true"] {
+  margin-bottom: 12px;
 }
 
 .ete-result-row {
@@ -90,7 +104,7 @@
 .ete-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.92);
+  background: #000;
   z-index: 2000;
   display: flex;
   align-items: center;

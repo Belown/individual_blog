@@ -13,8 +13,48 @@ const TpNav = ({ links = ['Features', 'Pricing', 'Blog'], brand = 'Focusly' }) =
   </nav>
 );
 
-const TpImg = ({ style, label = 'Product screenshot' }) => (
-  <div className="tp-img" style={style}>{label}</div>
+/* Simulated product dashboard screenshot */
+const TpDashboard = ({ style }) => (
+  <div className="tp-img" style={{ background: '#1b2130', borderRadius: 10, overflow: 'hidden', padding: 14, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: 10, ...style }}>
+    <div style={{ display: 'flex', gap: 8 }}>
+      {[['Tasks due', '12', '#3ddc84'], ['In progress', '7', '#f0a500'], ['Completed', '34', '#4a9eff']].map(([lbl, val, c]) => (
+        <div key={lbl} style={{ flex: 1, background: c + '18', border: `1px solid ${c}33`, borderRadius: 6, padding: '7px 10px' }}>
+          <div style={{ fontSize: '0.6rem', color: c + 'cc', marginBottom: 3 }}>{lbl}</div>
+          <div style={{ fontSize: '1.1rem', fontWeight: 700, color: c }}>{val}</div>
+        </div>
+      ))}
+    </div>
+    <div style={{ display: 'flex', gap: 8, flex: 1 }}>
+      <div style={{ flex: 2, display: 'flex', flexDirection: 'column', gap: 5 }}>
+        {[['Design review', '#3ddc84', '85%'], ['API integration', '#f0a500', '52%'], ['User testing', '#4a9eff', '30%'], ['Documentation', '#d4553a', '68%']].map(([t, c, w]) => (
+          <div key={t} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 5, padding: '6px 10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+              <span style={{ fontSize: '0.58rem', color: 'rgba(255,255,255,0.7)' }}>{t}</span>
+              <span style={{ fontSize: '0.58rem', color: c }}>{w}</span>
+            </div>
+            <div style={{ height: 4, background: 'rgba(255,255,255,0.1)', borderRadius: 2 }}>
+              <div style={{ width: w, height: '100%', background: c, borderRadius: 2 }} />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ flex: 1, background: 'rgba(255,255,255,0.04)', borderRadius: 6, padding: 8, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: 3 }}>
+        {[60, 80, 45, 90, 55, 70].map((h, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'flex-end', gap: 2 }}>
+            <div style={{ flex: 1, height: h * 0.7, background: '#3ddc8444', borderRadius: '2px 2px 0 0', borderTop: '2px solid #3ddc84' }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+/* Simulated editorial photo */
+const TpPhoto = ({ style, caption = 'Remote team collaboration' }) => (
+  <div className="tp-img" style={{ background: 'linear-gradient(135deg, #1a3a4a 0%, #2d6a8a 45%, #4a9eb5 100%)', position: 'relative', overflow: 'hidden', ...style }}>
+    <div style={{ position: 'absolute', inset: 0, opacity: 0.18, backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 18px,rgba(255,255,255,0.15) 18px,rgba(255,255,255,0.15) 19px),repeating-linear-gradient(90deg,transparent,transparent 18px,rgba(255,255,255,0.15) 18px,rgba(255,255,255,0.15) 19px)' }} />
+    <div style={{ position: 'absolute', bottom: 8, left: 10, right: 10, background: 'rgba(0,0,0,0.45)', borderRadius: 4, padding: '3px 8px', fontSize: '0.62rem', color: 'rgba(255,255,255,0.85)' }}>📷 {caption}</div>
+  </div>
 );
 
 /* ── Trial definitions: 2 variants per factor ─────────────────── */
@@ -42,12 +82,12 @@ const FACTORS = [
               <div className="tp-hero-left">
                 <h3 className="tp-headline-sm">Manage your team's work in one place</h3>
                 <p className="tp-body">Focusly gives distributed teams a shared space to plan projects, assign tasks, and track progress — from kickoff to delivery. No more scattered spreadsheets or missed handoffs.</p>
-                <p className="tp-body">Used by over 14,000 teams at companies like Spotify, Notion, and Stripe.</p>
+                <p className="tp-body">Whether you manage a product team, a marketing squad, or a fully remote engineering group, Focusly adapts to your workflow. Used by over 14,000 teams at companies like Spotify, Notion, and Stripe.</p>
                 <button className="tp-btn tp-btn-green tp-cta">Get Started Free →</button>
                 <p className="tp-fine">Free for 30 days · No credit card required</p>
               </div>
               <div className="tp-hero-right">
-                <TpImg label="📊 Product dashboard" />
+                <TpDashboard />
               </div>
             </div>
             <div className="tp-strip">
@@ -73,11 +113,12 @@ const FACTORS = [
               <div className="tp-hero-left">
                 <h1 className="tp-headline-lg">Manage your team's work in one place</h1>
                 <p className="tp-body">Focusly gives distributed teams a shared space to plan, track, and ship — without the chaos of scattered emails and missed deadlines.</p>
+                <p className="tp-body">Whether you manage a product team, a marketing squad, or a fully remote engineering group, Focusly adapts to your workflow. Used by over 14,000 teams at companies like Spotify, Notion, and Stripe.</p>
                 <button className="tp-btn tp-btn-green tp-cta">Get Started Free →</button>
                 <p className="tp-fine">Free for 30 days · No credit card required</p>
               </div>
               <div className="tp-hero-right">
-                <TpImg label="📊 Product dashboard" />
+                <TpDashboard />
               </div>
             </div>
             <div className="tp-strip">
@@ -112,12 +153,12 @@ const FACTORS = [
               <div className="tp-hero-left">
                 <h2 className="tp-headline-md">Your team's work, organised.</h2>
                 <p className="tp-body">Bring tasks, timelines, and conversations into one place. Focusly helps teams of all sizes plan, prioritise, and deliver — without the coordination overhead.</p>
-                <p className="tp-body">Trusted by 14,000+ teams worldwide.</p>
+                <p className="tp-body">Stop losing context across email threads and chat messages. Focusly keeps every decision, file, and update linked to the work it belongs to. Trusted by 14,000+ teams worldwide.</p>
                 <button className="tp-btn tp-btn-green tp-cta">Start for free →</button>
                 <p className="tp-fine">No credit card · Cancel anytime</p>
               </div>
               <div className="tp-hero-right">
-                <TpImg label="🗂 Project overview" />
+                <TpDashboard />
               </div>
             </div>
           </div>
@@ -140,12 +181,12 @@ const FACTORS = [
               <div className="tp-hero-left">
                 <h2 className="tp-headline-md">Your team's work, organised.</h2>
                 <p className="tp-body">Bring tasks, timelines, and conversations into one place. Focusly helps teams of all sizes plan, prioritise, and deliver — without the coordination overhead.</p>
-                <p className="tp-body">Trusted by 14,000+ teams worldwide.</p>
+                <p className="tp-body">Stop losing context across email threads and chat messages. Focusly keeps every decision, file, and update linked to the work it belongs to. Trusted by 14,000+ teams worldwide.</p>
                 <button className="tp-btn tp-btn-warm tp-cta">Start for free →</button>
                 <p className="tp-fine">No credit card · Cancel anytime</p>
               </div>
               <div className="tp-hero-right">
-                <TpImg label="🗂 Project overview" />
+                <TpDashboard />
               </div>
             </div>
           </div>
@@ -180,10 +221,11 @@ const FACTORS = [
                   <h2 className="tp-headline-article">The Complete Guide to Running an Async-First Team</h2>
                   <p className="tp-byline">By Marcus Webb · February 20, 2026 · 8 min read</p>
                   <p className="tp-body">Async-first teams consistently outperform synchronous ones on project delivery speed, employee satisfaction, and meeting overhead reduction. The shift isn't easy — but the payoff is significant.</p>
-                  <p className="tp-body">This guide covers the five pillars of a high-functioning async culture: clear written communication, reliable documentation, structured check-ins, outcome-based management, and shared tooling that respects time zones.</p>
+                  <p className="tp-body">The key is structured communication: instead of defaulting to "let's jump on a call," async-native teams invest in clear written documentation and recorded video updates that anyone can revisit across time zones.</p>
                 </div>
-                <TpImg style={{ width: 130, height: 97, flexShrink: 0, fontSize: '0.65rem' }} label="📷 Team photo" />
+                <TpPhoto style={{ width: 130, height: 97, flexShrink: 0 }} caption="Team at work" />
               </div>
+              <p className="tp-body">This guide covers the five pillars of a high-functioning async culture: clear written communication, reliable documentation, structured check-ins, outcome-based management, and shared tooling that respects every time zone.</p>
               <p className="tp-body">Pioneers like GitLab, Automattic, and Basecamp have scaled globally distributed teams of hundreds without a central office — proving co-location isn't a prerequisite for performance.</p>
               <button className="tp-btn tp-btn-green" style={{ marginTop: 8 }}>Download the full guide →</button>
             </div>
@@ -207,9 +249,10 @@ const FACTORS = [
               <div className="tp-article-meta">Resources › Guides</div>
               <h2 className="tp-headline-article">The Complete Guide to Running an Async-First Team</h2>
               <p className="tp-byline">By Marcus Webb · February 20, 2026 · 8 min read</p>
-              <TpImg style={{ width: '100%', aspectRatio: '16/6', marginBottom: 20, fontSize: '0.8rem' }} label="📷 Remote team collaboration" />
+              <TpPhoto style={{ width: '100%', aspectRatio: '16/6', marginBottom: 20 }} caption="Remote team collaboration" />
               <p className="tp-body">Async-first teams consistently outperform synchronous ones on project delivery speed, employee satisfaction, and meeting overhead reduction. The shift isn't easy — but the payoff is significant.</p>
-              <p className="tp-body">This guide covers the five pillars of a high-functioning async culture: clear written communication, reliable documentation, and outcome-based management.</p>
+              <p className="tp-body">The key is structured communication: instead of defaulting to "let's jump on a call," async-native teams invest in clear written documentation and recorded video updates that anyone can revisit across time zones.</p>
+              <p className="tp-body">This guide covers the five pillars of a high-functioning async culture: clear written communication, reliable documentation, structured check-ins, outcome-based management, and shared tooling that respects every time zone.</p>
               <button className="tp-btn tp-btn-green" style={{ marginTop: 8 }}>Download the full guide →</button>
             </div>
           </div>
@@ -237,15 +280,16 @@ const FACTORS = [
         content: () => (
           <div className="tp-page">
             <TpNav brand="TechReport" links={['World', 'Business', 'Technology', 'Science']} />
-            <div className="tp-article">
-              <div className="tp-article-meta">Technology › Remote Work</div>
-              <h1 className="tp-headline-article" style={{ fontSize: '1.7rem' }}>How AI Is Reshaping the Way Remote Teams Work Together</h1>
-              <p className="tp-byline">By Sarah Chen · March 14, 2026 · 5 min read</p>
-              <TpImg style={{ width: '100%', aspectRatio: '16/5', marginBottom: 18, fontSize: '0.8rem' }} label="🌍 Remote work" />
-              <p className="tp-body">In 2024, remote and hybrid work crossed a new milestone — over 40% of knowledge workers globally operated outside a traditional office for the majority of their workday. But the bigger shift wasn't geographic; it was cognitive.</p>
-              <p className="tp-body">AI-powered tools now draft meeting summaries, flag at-risk tasks, resolve scheduling conflicts, and write first-draft status updates. For distributed teams, the effect is transformative: coordination overhead drops, and the time saved goes toward actual work.</p>
-              <blockquote className="tp-pullquote">"The best async tools don't just record what happened — they surface what matters." — Dr. Ana Reyes, Future of Work Institute</blockquote>
-              <p className="tp-body">A 2025 Gartner study found that teams using AI-augmented project tools reduced internal meeting time by an average of 34%, without a measurable decline in alignment or output quality.</p>
+            <div style={{ display: 'flex', gap: 24 }}>
+              <div className="tp-article" style={{ flex: 1, minWidth: 0 }}>
+                <div className="tp-article-meta">Technology › Remote Work</div>
+                <h1 className="tp-headline-article" style={{ fontSize: '1.7rem' }}>How AI Is Reshaping the Way Remote Teams Work Together</h1>
+                <p className="tp-byline">By Sarah Chen · March 14, 2026 · 5 min read</p>
+                <p className="tp-body">In 2024, remote and hybrid work crossed a new milestone — over 40% of knowledge workers globally operated outside a traditional office for the majority of their workday. But the bigger shift wasn't geographic; it was cognitive.</p>
+                <p className="tp-body">AI-powered tools now draft meeting summaries, flag at-risk tasks, resolve scheduling conflicts, and write first-draft status updates. For distributed teams, the effect is transformative: coordination overhead drops, and the time saved goes toward actual work.</p>
+                <blockquote className="tp-pullquote">"The best async tools don't just record what happened — they surface what matters." — Dr. Ana Reyes, Future of Work Institute</blockquote>
+                <p className="tp-body">A 2025 Gartner study found that teams using AI-augmented project tools reduced internal meeting time by an average of 34%, without a measurable decline in alignment or output quality.</p>
+              </div>
             </div>
           </div>
         ),
@@ -275,8 +319,9 @@ const FACTORS = [
                 <p className="tp-byline">By Sarah Chen · March 14, 2026 · 5 min read</p>
                 <p className="tp-body">In 2024, remote and hybrid work crossed a new milestone — over 40% of knowledge workers globally operated outside a traditional office for the majority of their workday. But the bigger shift wasn't geographic; it was cognitive.</p>
                 <div className="tp-ad tp-ad-mid">AD · TravelPlus · Business travel made simple · Book your next trip →</div>
-                <p className="tp-body">AI-powered tools now draft meeting summaries, flag at-risk tasks, resolve scheduling conflicts, and write first-draft status updates. For distributed teams, the effect is transformative.</p>
-                <blockquote className="tp-pullquote">"The best async tools don't just record what happened — they surface what matters." — Dr. Ana Reyes</blockquote>
+                <p className="tp-body">AI-powered tools now draft meeting summaries, flag at-risk tasks, resolve scheduling conflicts, and write first-draft status updates. For distributed teams, the effect is transformative: coordination overhead drops, and the time saved goes toward actual work.</p>
+                <blockquote className="tp-pullquote">"The best async tools don't just record what happened — they surface what matters." — Dr. Ana Reyes, Future of Work Institute</blockquote>
+                <p className="tp-body">A 2025 Gartner study found that teams using AI-augmented project tools reduced internal meeting time by an average of 34%, without a measurable decline in alignment or output quality.</p>
               </div>
               <div className="tp-ads-sidebar">
                 <div className="tp-ad tp-ad-sidebar">AD · ClearDesk · Ergonomic home office furniture · Shop now</div>
@@ -308,9 +353,10 @@ const VALID_PTS = [
 
 const TRIAL_MS       = 5000;
 const CLICKS_PER_DOT = 5;
-const VALID_MS       = 1600;  // ms to collect gaze samples per validation point
-const VALID_GOOD_PX  = 80;    // avg error < this → "Good"
-const VALID_FAIR_PX  = 140;   // avg error < this → "Fair", else "Poor"
+const VALID_MS       = 2200;  // ms to collect gaze samples per validation point
+const VALID_SETTLE   = 600;   // ms to discard at start (saccade + settling time)
+const VALID_GOOD_PX  = 120;   // avg error < this → "Good"
+const VALID_FAIR_PX  = 200;   // avg error < this → "Fair", else "Poor"
 
 /* ── Heatmap drawing ───────────────────────────────────────────── */
 function drawHeatmap(ctx, pts, cw, ch) {
@@ -340,61 +386,150 @@ function drawHeatmap(ctx, pts, cw, ch) {
 }
 
 /* ── Result card: scaled HTML content + heatmap overlay ──────────*/
-const RESULT_H   = 280;  // fixed display height for result thumbnails
 const CONTENT_W  = 900;  // matches tp-page max-width
+const THUMB_H    = 280;  // cropped thumbnail height
+
+/* Full-size heatmap canvas rendered inside the modal */
+function ModalHeatmap({ gazePoints }) {
+  const canvasRef = useRef(null);
+  const wrapRef   = useRef(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const wrap   = wrapRef.current;
+    if (!canvas || !wrap) return;
+    const w   = wrap.offsetWidth;
+    const h   = wrap.offsetHeight;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width  = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width  = w + 'px';
+    canvas.style.height = h + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    drawHeatmap(ctx, gazePoints, w, h);
+  }, [gazePoints]);
+  return (
+    <div ref={wrapRef} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+      <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0 }} />
+    </div>
+  );
+}
 
 function ResultCard({ content, gazePoints, label }) {
   const containerRef = useRef(null);
+  const contentRef   = useRef(null);
   const canvasRef    = useRef(null);
-  const [scale, setScale] = useState(0);
+  // dims.scale > 0 means phase 2 (measured); dims.height is the final px height
+  const [dims, setDims] = useState({ scale: 0, height: 0 });
+  const [modalOpen, setModalOpen] = useState(false);
 
-  // Measure container width after mount to compute scale factor
+  // Phase 1 → Phase 2: measure natural content height then apply scale
   useEffect(() => {
-    if (containerRef.current) {
-      setScale(containerRef.current.offsetWidth / CONTENT_W);
-    }
+    if (!containerRef.current || !contentRef.current) return;
+    const w       = containerRef.current.offsetWidth;
+    const scale   = w / CONTENT_W;
+    const naturalH = contentRef.current.offsetHeight;
+    setDims({ scale, height: Math.round(naturalH * scale) });
   }, []);
 
-  // Redraw heatmap whenever gaze data or scale changes
+  // Close modal on Escape
+  useEffect(() => {
+    if (!modalOpen) return;
+    const onKey = (e) => { if (e.key === 'Escape') setModalOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [modalOpen]);
+
+  // Redraw heatmap whenever gaze data or dims change
   useEffect(() => {
     const canvas    = canvasRef.current;
     const container = containerRef.current;
-    if (!canvas || !container || scale === 0) return;
+    if (!canvas || !container || dims.scale === 0) return;
     const w   = container.offsetWidth;
     const dpr = window.devicePixelRatio || 1;
     canvas.width  = w * dpr;
-    canvas.height = RESULT_H * dpr;
+    canvas.height = THUMB_H * dpr;
     canvas.style.width  = w + 'px';
-    canvas.style.height = RESULT_H + 'px';
+    canvas.style.height = THUMB_H + 'px';
     const ctx = canvas.getContext('2d');
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    drawHeatmap(ctx, gazePoints, w, RESULT_H);
-  }, [gazePoints, scale]);
+    drawHeatmap(ctx, gazePoints, w, THUMB_H);
+  }, [gazePoints, dims]);
 
   return (
     <div style={{ flex: 1, minWidth: 0 }}>
       <div className="ete-variant-label">{label}</div>
       <div
         ref={containerRef}
-        style={{ position: 'relative', height: RESULT_H, overflow: 'hidden',
-                 background: '#fff', borderRadius: 8, border: '1px solid #e8e8e8' }}
+        onClick={() => dims.scale > 0 && setModalOpen(true)}
+        style={{
+          position: 'relative',
+          height: THUMB_H,
+          overflow: 'hidden',
+          background: '#fff',
+          borderRadius: 8,
+          border: '1px solid #e8e8e8',
+          cursor: dims.scale > 0 ? 'pointer' : 'default',
+        }}
       >
-        {/* Scaled-down replica of the trial page */}
-        {scale > 0 && (
-          <div style={{
+        {/* Phase 1: invisible render at full width so we can measure natural height.
+            Phase 2: scaled to fit the container width. */}
+        <div
+          ref={contentRef}
+          style={{
             width: CONTENT_W,
             transformOrigin: 'top left',
-            transform: `scale(${scale})`,
+            transform: dims.scale > 0 ? `scale(${dims.scale})` : undefined,
+            visibility: dims.scale > 0 ? 'visible' : 'hidden',
             pointerEvents: 'none',
             userSelect: 'none',
-          }}>
-            {content()}
-          </div>
-        )}
+          }}
+        >
+          {content()}
+        </div>
         {/* Heatmap drawn on a transparent canvas on top */}
         <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
       </div>
       <div className="ete-gaze-count">{gazePoints.length} gaze samples</div>
+
+      {/* ── Lightbox modal ── */}
+      {modalOpen && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 9990,
+            background: 'rgba(0,0,0,0.82)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 24,
+          }}
+          onClick={() => setModalOpen(false)}
+        >
+          <div
+            style={{
+              position: 'relative', maxWidth: CONTENT_W, width: '100%',
+              maxHeight: '90vh', overflowY: 'auto',
+              borderRadius: 12, background: '#fff',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setModalOpen(false)}
+              style={{
+                position: 'sticky', top: 10, float: 'right', marginRight: 10,
+                background: 'rgba(0,0,0,0.55)', border: 'none', color: '#fff',
+                borderRadius: '50%', width: 32, height: 32,
+                cursor: 'pointer', fontSize: '1rem', zIndex: 1,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >✕</button>
+            {/* Full-size content with heatmap overlay */}
+            <div style={{ position: 'relative', userSelect: 'none', pointerEvents: 'none' }}>
+              {content()}
+              <ModalHeatmap gazePoints={gazePoints} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -474,21 +609,33 @@ function FaceDetectionBadge({ detected }) {
   );
 }
 
+function shuffled(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 /* ── Main component ──────────────────────────────────────────────*/
 export default function EyeTrackingExperiment() {
-  // phase: idle | loading | calibrating | validating | validation_result | pretrial | viewing | comparing | done | error
+  // phase: idle | loading | calibrating | pre_validation | validating | validation_result | pretrial | viewing | done | error
   const [phase,        setPhase]        = useState('idle');
   const [errorMsg,     setErrorMsg]     = useState('');
   const [calibIdx,     setCalibIdx]     = useState(0);
   const [calibClicks,  setCalibClicks]  = useState(0);
-  const [factorIdx,    setFactorIdx]    = useState(0);
-  const [variantIdx,   setVariantIdx]   = useState(0);
+  const [calibCooldown, setCalibCooldown] = useState(false); // brief delay between clicks
+  const allTrials = FACTORS.flatMap((f, fi) => f.variants.map((_, vi) => ({ fi, vi })));
+  const [trialList, setTrialList] = useState(() => shuffled(allTrials));
+  const [trialStep, setTrialStep] = useState(0);
   const [countdown,    setCountdown]    = useState(5);
   const [gazeDot,      setGazeDot]      = useState(null);
   const [gazeData,     setGazeData]     = useState(() => FACTORS.map(() => [[], []]));
   const [validIdx,     setValidIdx]     = useState(0);
   const [validErrors,  setValidErrors]  = useState([]);
   const [faceDetected, setFaceDetected] = useState(false);
+  const [openFactors,  setOpenFactors]  = useState(new Set([0])); // first tab open by default
 
   const trialRef               = useRef(null); // the live trial content div
   const gazeBuffer             = useRef([]);
@@ -531,6 +678,9 @@ export default function EyeTrackingExperiment() {
   }), []);
 
   const startWebGazer = useCallback(async () => {
+    setTrialList(shuffled(allTrials));
+    setTrialStep(0);
+    setGazeData(FACTORS.map(() => [[], []]));
     setPhase('loading');
     try {
       const wg = await loadWG();
@@ -538,9 +688,11 @@ export default function EyeTrackingExperiment() {
       wg.params.showVideoPreview    = true;
       wg.params.showFaceOverlay     = true;
       wg.params.showFaceFeedbackBox = false; // we draw our own face-position guide
+      wg.setRegression('ridge');
       await wg.begin();
       wg.showPredictionPoints(false);
-      wg.applyKalmanFilter(true);
+      // NOTE: Kalman filter is applied AFTER calibration (in handleCalibClick)
+      // to avoid smoothing-lag from degrading the training click positions.
       // Reposition the injected video container to the top-left (matching the
       // official WebGazer demo). Size it at a 4:3 ratio so the full feed shows.
       const vid = document.getElementById('webgazerVideoContainer');
@@ -582,40 +734,49 @@ export default function EyeTrackingExperiment() {
       setErrorMsg('Could not start camera: ' + (e?.message ?? e));
       setPhase('error');
     }
-  }, [loadWG]);
+  }, [loadWG, allTrials, smooth]);
 
   /* ── Calibration click ───────────────────────────────────────── */
   const handleCalibClick = useCallback(() => {
+    if (calibCooldown) return; // ignore rapid-fire clicks
     const next = calibClicks + 1;
     if (next < CLICKS_PER_DOT) {
       setCalibClicks(next);
+      // Enforce a short cooldown so each click captures a distinct gaze frame
+      setCalibCooldown(true);
+      setTimeout(() => setCalibCooldown(false), 200);
     } else {
       const nextDot = calibIdx + 1;
       if (nextDot >= CALIB_PTS.length) {
-        // Calibration done → run accuracy validation
+        // Calibration done — enable Kalman filter now that training is complete
+        wgRef.current?.applyKalmanFilter(true);
         wgRef.current?.clearGazeListener();
         setGazeDot(null);
         setValidErrors([]);
-        setPhase('validating');
-        setTimeout(() => startValidationPtRef.current?.(0), 400);
+        setPhase('pre_validation');
       } else {
         setCalibIdx(nextDot);
         setCalibClicks(0);
+        setCalibCooldown(true);
+        setTimeout(() => setCalibCooldown(false), 200);
       }
     }
-  }, [calibClicks, calibIdx]);
+  }, [calibClicks, calibIdx, calibCooldown]);
 
   /* ── Validation point (auto-timed, recursive via ref) ────────── */
   const startValidationPoint = useCallback((idx) => {
     setValidIdx(idx);
+    gazeSmoothed.current = null; // reset EMA so previous position doesn't pull avg
     const buf = [];
+    const t0 = performance.now();
 
     wgRef.current?.setGazeListener((data) => {
       setFaceDetected(!!data);
       if (data) {
         const s = smooth({ x: data.x, y: data.y });
         setGazeDot(s);
-        buf.push(s);
+        // Only keep samples after the settling period (saccade + Kalman lag)
+        if (performance.now() - t0 >= VALID_SETTLE) buf.push(s);
       } else {
         setGazeDot(null);
       }
@@ -644,7 +805,7 @@ export default function EyeTrackingExperiment() {
         setPhase('validation_result');
       }
     }, VALID_MS);
-  }, []); // stable: only refs and stable setState calls
+  }, [smooth]);
 
   useEffect(() => {
     startValidationPtRef.current = startValidationPoint;
@@ -654,9 +815,11 @@ export default function EyeTrackingExperiment() {
   const handleRecalibrate = useCallback(() => {
     clearTimeout(timerRef.current);
     wgRef.current?.clearData?.(); // reset WebGazer's training data
+    wgRef.current?.applyKalmanFilter(false); // disable filter during recalibration
     setPhase('calibrating');
     setCalibIdx(0);
     setCalibClicks(0);
+    setCalibCooldown(false);
     setValidErrors([]);
     // Re-show camera preview
     const vid = document.getElementById('webgazerVideoContainer');
@@ -671,9 +834,15 @@ export default function EyeTrackingExperiment() {
     });
   }, [smooth]);
 
+  /* ── Randomised trial lookup ─────────────────────────────────── */
+  const { fi: actualFi, vi: actualVi } = trialList[trialStep] ?? { fi: 0, vi: 0 };
+  const F = FACTORS[actualFi];
+
   /* ── Start a viewing trial ───────────────────────────────────── */
   const startViewing = useCallback(() => {
     gazeBuffer.current = [];
+    // Reset EMA so stale positions from calibration/validation don't bleed in
+    gazeSmoothed.current = null;
     setPhase('viewing');
     setCountdown(Math.ceil(TRIAL_MS / 1000));
 
@@ -714,36 +883,25 @@ export default function EyeTrackingExperiment() {
       const pts = [...gazeBuffer.current];
       setGazeData(prev => {
         const next = prev.map(f => f.map(v => [...v]));
-        next[factorIdx][variantIdx] = pts;
+        next[actualFi][actualVi] = pts;
         return next;
       });
-      if (variantIdx === 0) {
-        setVariantIdx(1);
-        setPhase('pretrial');
+      const nextStep = trialStep + 1;
+      if (nextStep >= trialList.length) {
+        setPhase('done');
+        wgRef.current?.end();
+        const vid = document.getElementById('webgazerVideoContainer');
+        if (vid) vid.style.display = 'none';
       } else {
-        setPhase('comparing');
+        setTrialStep(nextStep);
+        setPhase('pretrial');
       }
     }, TRIAL_MS);
-  }, [factorIdx, variantIdx, smooth]);
-
-  /* ── Next factor ─────────────────────────────────────────────── */
-  const nextFactor = useCallback(() => {
-    const next = factorIdx + 1;
-    if (next >= FACTORS.length) {
-      setPhase('done');
-      wgRef.current?.end();
-      const vid = document.getElementById('webgazerVideoContainer');
-      if (vid) vid.style.display = 'none';
-    } else {
-      setFactorIdx(next);
-      setVariantIdx(0);
-      setPhase('pretrial');
-    }
-  }, [factorIdx]);
+  }, [trialStep, trialList, smooth, actualFi, actualVi]);
 
   /* ── Overlay backdrop ────────────────────────────────────────── */
   const isOverlay = phase !== 'idle' && phase !== 'error' && phase !== 'done';
-  const showFaceBadge = phase === 'loading' || phase === 'calibrating' || phase === 'validating';
+  const showFaceBadge = phase === 'loading' || phase === 'calibrating' || phase === 'pre_validation' || phase === 'validating';
 
   /* ── Validation result helpers ───────────────────────────────── */
   const validAvg = (() => {
@@ -789,20 +947,35 @@ export default function EyeTrackingExperiment() {
         <div className="ete-done-card">
           <div style={{ fontSize: '2rem', marginBottom: 10 }}>🎉</div>
           <h3 style={{ fontFamily: "'Inter', sans-serif", marginBottom: 16 }}>Experiment Complete!</h3>
-          {FACTORS.map((f, fi) => (
-            <div key={fi} className="ete-result-block">
-              <div className="ete-result-header">
-                <span>{f.icon}</span>
-                <strong style={{ fontFamily: "'Inter', sans-serif" }}>{f.name}</strong>
+          {FACTORS.map((f, fi) => {
+            const isOpen = openFactors.has(fi);
+            const toggle = () => setOpenFactors(prev => {
+              const next = new Set(prev);
+              next.has(fi) ? next.delete(fi) : next.add(fi);
+              return next;
+            });
+            return (
+              <div key={fi} className="ete-result-block">
+                <button className="ete-result-header" onClick={toggle} aria-expanded={isOpen}>
+                  <span>{f.icon}</span>
+                  <strong style={{ fontFamily: "'Inter', sans-serif" }}>{f.name}</strong>
+                  <span style={{ marginLeft: 'auto', fontSize: '0.85rem', opacity: 0.6 }}>
+                    {isOpen ? '▲' : '▼'}
+                  </span>
+                </button>
+                {isOpen && (
+                  <>
+                    <div className="ete-result-row">
+                      {f.variants.map((v, vi) => (
+                        <ResultCard key={vi} content={v.content} gazePoints={gazeData[fi][vi]} label={v.label} />
+                      ))}
+                    </div>
+                    <p className="ete-insight-text">💡 {f.insight}</p>
+                  </>
+                )}
               </div>
-              <div className="ete-result-row">
-                {f.variants.map((v, vi) => (
-                  <ResultCard key={vi} content={v.content} gazePoints={gazeData[fi][vi]} label={v.label} />
-                ))}
-              </div>
-              <p className="ete-insight-text">💡 {f.insight}</p>
-            </div>
-          ))}
+            );
+          })}
           <button className="btn btn-secondary" style={{ marginTop: 12 }} onClick={() => {
             setPhase('idle');
             setGazeData(FACTORS.map(() => [[], []]));
@@ -814,7 +987,7 @@ export default function EyeTrackingExperiment() {
 
       {/* CamGuide sits outside the overlay so its z-index is in the root stacking
           context and can exceed the WebGazer video container (z-index 2004). */}
-      {(phase === 'calibrating' || phase === 'validating') && <CamGuide />}
+      {(phase === 'calibrating' || phase === 'pre_validation' || phase === 'validating') && <CamGuide />}
 
       {/* ── Fullscreen overlay ─────────────────────────────────── */}
       {isOverlay && (
@@ -841,6 +1014,14 @@ export default function EyeTrackingExperiment() {
                 <strong>Calibration</strong>&nbsp;—&nbsp;
                 Look at each red dot, then click it {CLICKS_PER_DOT} times.&nbsp;
                 ({calibIdx + 1}&nbsp;/&nbsp;{CALIB_PTS.length})
+                <button
+                  onClick={() => { setTrialStep(0); setPhase('pretrial'); }}
+                  style={{ marginLeft: 16, fontSize: '0.72rem', opacity: 0.5, background: 'none',
+                    border: '1px solid rgba(255,255,255,0.4)', color: '#fff', borderRadius: 4,
+                    padding: '2px 8px', cursor: 'pointer' }}
+                >
+                  skip (debug)
+                </button>
               </div>
               {/* Camera preview label — sits above the WebGazer video container */}
               <div className="ete-cam-label">
@@ -860,6 +1041,27 @@ export default function EyeTrackingExperiment() {
                 <div className="ete-gaze-cursor" style={{ left: gazeDot.x - 8, top: gazeDot.y - 8 }} />
               )}
             </>
+          )}
+
+          {/* ── Pre-validation instruction ─────────────────────*/}
+          {phase === 'pre_validation' && (
+            <div className="ete-centre-box" style={{ maxWidth: 440, gap: 14 }}>
+              <div style={{ fontSize: '1.5rem' }}>✅</div>
+              <h3 style={{ color: '#fff', margin: 0, fontFamily: "'Inter', sans-serif" }}>
+                Calibration Complete
+              </h3>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem', textAlign: 'center', lineHeight: 1.5, margin: 0 }}>
+                Next, we'll check accuracy. A dot will appear at {VALID_PTS.length} positions —
+                <strong style={{ color: 'rgba(255,255,255,0.85)' }}> just look at each dot</strong> and
+                hold your gaze steady. No clicking needed.
+              </p>
+              <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={() => {
+                setPhase('validating');
+                setTimeout(() => startValidationPtRef.current?.(0), 400);
+              }}>
+                Start accuracy check
+              </button>
+            </div>
           )}
 
           {/* ── Validation phase (option 1) ──────────────────────*/}
@@ -943,8 +1145,7 @@ export default function EyeTrackingExperiment() {
                   const vid = document.getElementById('webgazerVideoContainer');
                   if (vid) vid.style.display = 'none';
                   setPhase('pretrial');
-                  setFactorIdx(0);
-                  setVariantIdx(0);
+                  setTrialStep(0);
                 }}>
                   Start experiment →
                 </button>
@@ -955,14 +1156,9 @@ export default function EyeTrackingExperiment() {
           {/* Pre-trial instruction */}
           {phase === 'pretrial' && (
             <div className="ete-centre-box">
-              <div style={{ fontSize: '2rem', marginBottom: 10 }}>{FACTORS[factorIdx].icon}</div>
               <div className="ete-factor-label">
-                Factor {factorIdx + 1} / {FACTORS.length} — {FACTORS[factorIdx].name}
+                Trial {trialStep + 1} of {trialList.length}
               </div>
-              <div className="ete-variant-badge">
-                Variant {variantIdx + 1} of 2: <strong>&nbsp;{FACTORS[factorIdx].variants[variantIdx].label}</strong>
-              </div>
-              <p className="ete-hint-text">{FACTORS[factorIdx].variants[variantIdx].hint}</p>
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem', marginBottom: 20 }}>
                 View the page naturally for {TRIAL_MS / 1000} seconds. Recording starts immediately.
               </p>
@@ -977,12 +1173,12 @@ export default function EyeTrackingExperiment() {
             <div className="ete-viewing-wrap">
               <div className="ete-viewing-bar">
                 <span className="ete-viewing-label">
-                  {FACTORS[factorIdx].icon}&nbsp;{FACTORS[factorIdx].variants[variantIdx].label}
+                  Trial {trialStep + 1} of {trialList.length}
                 </span>
                 <span className="ete-countdown-badge">{countdown}s</span>
               </div>
               <div ref={trialRef} className="ete-trial-content">
-                {FACTORS[factorIdx].variants[variantIdx].content()}
+                {F.variants[actualVi].content()}
               </div>
               {gazeDot && (
                 <div style={{
@@ -1000,34 +1196,6 @@ export default function EyeTrackingExperiment() {
             </div>
           )}
 
-          {/* Comparing two variants */}
-          {phase === 'comparing' && (
-            <div className="ete-compare-wrap">
-              <div className="ete-compare-header">
-                <span style={{ fontSize: '1.4rem' }}>{FACTORS[factorIdx].icon}</span>
-                <h3 style={{ color: '#fff', margin: 0, fontFamily: "'Inter', sans-serif" }}>
-                  {FACTORS[factorIdx].name} — Your Gaze
-                </h3>
-              </div>
-              <div className="ete-compare-row">
-                {FACTORS[factorIdx].variants.map((v, vi) => (
-                  <div key={vi} className="ete-compare-card">
-                    <ResultCard
-                      content={v.content}
-                      gazePoints={gazeData[factorIdx][vi]}
-                      label={v.label}
-                    />
-                  </div>
-                ))}
-              </div>
-              <p className="ete-insight-overlay">💡 {FACTORS[factorIdx].insight}</p>
-              <button className="btn btn-primary" onClick={nextFactor}>
-                {factorIdx + 1 < FACTORS.length
-                  ? `Next factor →`
-                  : 'View full summary'}
-              </button>
-            </div>
-          )}
 
         </div>
       )}

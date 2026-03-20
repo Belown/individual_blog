@@ -169,12 +169,12 @@ export default function FactorsSection() {
 
         <details className="fs-ref-details">
           <summary className="fs-ref-summary">
-            <span className="fs-ref-summary-icon">&#x1F9EA;</span>
+            <span className="fs-ref-summary-icon">🧪</span>
             About the simulation model &amp; references
-            <span className="fs-ref-chevron">&#x25BE;</span>
+            <span className="fs-ref-chevron">🧪</span>
           </summary>
           <div className="fs-ref-body">
-            <p style={{ marginTop: 0 }}>
+            <p style={{ marginTop: 2 }}>
               <strong>Model note.</strong> The scanpath simulations above are based on the{' '}
               <em>SceneWalk</em> model of spatial attention during scene viewing. At each step the
               model combines a <strong>saliency landscape</strong>, a <strong>local-excitation
