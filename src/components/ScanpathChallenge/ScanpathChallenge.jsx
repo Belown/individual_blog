@@ -62,6 +62,7 @@ const REF_FIXATIONS = simulateScanpath(REF_ELEMENTS, { numFixations: NUM_FIXATIO
 //   patterns in time series. AAAI Workshop on Knowledge Discovery in Databases.
 function dtwSimilarity(a, b) {
   const n = a.length, m = b.length;
+  if (n === 0 || m === 0) return 0;
   const d = (p, q) => Math.hypot((p.x - q.x) / SIM_W, (p.y - q.y) / SIM_H);
   const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(Infinity));
   dp[0][0] = 0;

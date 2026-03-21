@@ -365,8 +365,10 @@ function drawHeatmap(ctx, pts, cw, ch) {
   off.width = cw; off.height = ch;
   const oc = off.getContext('2d');
   const r = Math.max(cw, ch) * 0.055;
-  // pts are stored as 0-1 fractions — scale to this canvas's pixel dimensions
-  pts.forEach(({ x, y }) => {
+  // pts are stored as 0-1 fractions — filter out invalid values before scaling
+  const validPts = pts.filter(({ x, y }) => isFinite(x) && isFinite(y) && x >= 0 && x <= 1 && y >= 0 && y <= 1);
+  if (!validPts.length) return;
+  validPts.forEach(({ x, y }) => {
     const px = x * cw, py = y * ch;
     const g = oc.createRadialGradient(px, py, 0, px, py, r);
     g.addColorStop(0,   'rgba(255,40,0,0.22)');
@@ -377,7 +379,7 @@ function drawHeatmap(ctx, pts, cw, ch) {
   });
   ctx.save(); ctx.globalAlpha = 0.85; ctx.drawImage(off, 0, 0); ctx.restore();
   ctx.save(); ctx.globalAlpha = 0.55;
-  pts.forEach(({ x, y }) => {
+  validPts.forEach(({ x, y }) => {
     const px = x * cw, py = y * ch;
     ctx.fillStyle = 'rgba(255,60,0,0.7)';
     ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI * 2); ctx.fill();
@@ -453,7 +455,10 @@ function ResultCard({ content, gazePoints, label }) {
     canvas.style.height = THUMB_H + 'px';
     const ctx = canvas.getContext('2d');
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    drawHeatmap(ctx, gazePoints, w, THUMB_H);
+    // Use the full scaled content height (dims.height) so gaze y-fractions map to
+    // the same positions as in the modal. The canvas is cropped to THUMB_H, so
+    // gaze points in the cut-off portion simply don't appear — which is correct.
+    drawHeatmap(ctx, gazePoints, w, dims.height);
   }, [gazePoints, dims]);
 
   return (
@@ -644,6 +649,7 @@ export default function EyeTrackingExperiment() {
   // Exponential moving average — blends 35% new signal with 65% previous.
   // Lower alpha = smoother but more lag; raise toward 1.0 for raw output.
   const smooth = useCallback((raw) => {
+    if (!raw || !isFinite(raw.x) || !isFinite(raw.y)) return gazeSmoothed.current;
     const ALPHA = 0.35;
     const prev  = gazeSmoothed.current;
     const next  = prev
@@ -657,14 +663,29 @@ export default function EyeTrackingExperiment() {
   const wgRef                  = useRef(null);
   const startValidationPtRef   = useRef(null); // forward ref for recursive scheduling
 
+  /* ── Stop camera stream & WebGazer ──────────────────────────── */
+  const stopCamera = useCallback(() => {
+    wgRef.current?.clearGazeListener();
+    wgRef.current?.end();
+    // WebGazer's end() doesn't always release the MediaStream, so stop
+    // the tracks directly so the browser camera indicator turns off.
+    const vid = document.querySelector('#webgazerVideoContainer video');
+    if (vid?.srcObject) {
+      vid.srcObject.getTracks().forEach(t => t.stop());
+      vid.srcObject = null;
+    }
+    const container = document.getElementById('webgazerVideoContainer');
+    if (container) container.style.display = 'none';
+  }, []);
+
   /* ── Cleanup on unmount ──────────────────────────────────────── */
   useEffect(() => {
     return () => {
       clearTimeout(timerRef.current);
       clearInterval(cdRef.current);
-      wgRef.current?.end();
+      stopCamera();
     };
-  }, []);
+  }, [stopCamera]);
 
 
   /* ── Load WebGazer & start camera ────────────────────────────── */
@@ -798,6 +819,7 @@ export default function EyeTrackingExperiment() {
           );
 
       setValidErrors(prev => [...prev, err]);
+      setValidIdx(-1);  // hide dot during the gap so next dot + progress bar mount together
 
       if (idx + 1 < VALID_PTS.length) {
         timerRef.current = setTimeout(() => startValidationPtRef.current?.(idx + 1), 450);
@@ -889,15 +911,13 @@ export default function EyeTrackingExperiment() {
       const nextStep = trialStep + 1;
       if (nextStep >= trialList.length) {
         setPhase('done');
-        wgRef.current?.end();
-        const vid = document.getElementById('webgazerVideoContainer');
-        if (vid) vid.style.display = 'none';
+        stopCamera();
       } else {
         setTrialStep(nextStep);
         setPhase('pretrial');
       }
     }, TRIAL_MS);
-  }, [trialStep, trialList, smooth, actualFi, actualVi]);
+  }, [trialStep, trialList, smooth, actualFi, actualVi, stopCamera]);
 
   /* ── Overlay backdrop ────────────────────────────────────────── */
   const isOverlay = phase !== 'idle' && phase !== 'error' && phase !== 'done';
@@ -1056,6 +1076,7 @@ export default function EyeTrackingExperiment() {
                 hold your gaze steady. No clicking needed.
               </p>
               <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={() => {
+                setValidIdx(-1);    // sentinel: dot hidden until startValidationPoint sets it to 0
                 setPhase('validating');
                 setTimeout(() => startValidationPtRef.current?.(0), 400);
               }}>
@@ -1069,30 +1090,36 @@ export default function EyeTrackingExperiment() {
             <>
               <div className="ete-calib-instructions">
                 <strong>Accuracy check</strong>&nbsp;—&nbsp;
-                Look at the dot and hold still. ({validIdx + 1}&nbsp;/&nbsp;{VALID_PTS.length})
+                {validIdx >= 0
+                  ? <>Look at the dot and hold still. ({validIdx + 1}&nbsp;/&nbsp;{VALID_PTS.length})</>
+                  : <>Get ready…</>}
               </div>
               <div className="ete-cam-label">
                 <span className="ete-cam-label-icon">📷</span>
                 Keep your face centred in the box
               </div>
-              {/* Validation dot — key forces animation restart on each point */}
-              <div
-                key={`vdot-${validIdx}`}
-                className="ete-valid-dot"
-                style={{
-                  left: `calc(${VALID_PTS[validIdx].rx * 100}vw - 20px)`,
-                  top:  `calc(${VALID_PTS[validIdx].ry * 100}vh - 20px)`,
-                  animationDuration: `${VALID_MS}ms`,
-                }}
-              />
-              {/* Progress bar draining left-to-right */}
-              <div className="ete-valid-progress-track">
-                <div
-                  key={`vprog-${validIdx}`}
-                  className="ete-valid-progress-bar"
-                  style={{ animationDuration: `${VALID_MS}ms` }}
-                />
-              </div>
+              {/* Dot + progress bar only mount once startValidationPoint has set
+                  validIdx, so the CSS animation and JS timer start in sync. */}
+              {validIdx >= 0 && validIdx < VALID_PTS.length && (
+                <>
+                  <div
+                    key={`vdot-${validIdx}`}
+                    className="ete-valid-dot"
+                    style={{
+                      left: `calc(${VALID_PTS[validIdx].rx * 100}vw - 20px)`,
+                      top:  `calc(${VALID_PTS[validIdx].ry * 100}vh - 20px)`,
+                      animationDuration: `${VALID_MS}ms`,
+                    }}
+                  />
+                  <div className="ete-valid-progress-track">
+                    <div
+                      key={`vprog-${validIdx}`}
+                      className="ete-valid-progress-bar"
+                      style={{ animationDuration: `${VALID_MS}ms` }}
+                    />
+                  </div>
+                </>
+              )}
               {gazeDot && (
                 <div className="ete-gaze-cursor" style={{ left: gazeDot.x - 8, top: gazeDot.y - 8 }} />
               )}

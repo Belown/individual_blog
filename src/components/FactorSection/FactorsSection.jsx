@@ -76,6 +76,57 @@ function FactorDemo({ title, description, icon, paramLabel, paramMin, paramMax, 
   );
 }
 
+const buildHierarchyElements = (fontSize) => [
+  { type: 'headline', x: 40, y: 60, width: 400, height: 50, fontSize, text: 'Big Headline', color: '#2c2c2c' },
+  { type: 'text', x: 40, y: 140, width: 400, height: 100 },
+  { type: 'image', x: 500, y: 60, width: 260, height: 180, size: 1 },
+  { type: 'cta', x: 40, y: 270, width: 160, height: 42, color: '#1a8a6a', brightness: 0.7 },
+  { type: 'text', x: 40, y: 350, width: 720, height: 80 },
+];
+
+const buildColorElements = (warmth) => {
+  const r = Math.round(26 + warmth * 186), g = Math.round(138 - warmth * 60), b = Math.round(106 - warmth * 80);
+  return [
+    { type: 'headline', x: 40, y: 60, width: 400, height: 50, fontSize: 28, text: 'Our Product', color: '#2c2c2c' },
+    { type: 'text', x: 40, y: 130, width: 400, height: 80 },
+    { type: 'cta', x: 40, y: 240, width: 180, height: 46, color: `rgb(${r},${g},${b})`, brightness: warmth },
+    { type: 'image', x: 480, y: 60, width: 280, height: 200, size: 1 },
+    { type: 'text', x: 40, y: 330, width: 720, height: 80 },
+  ];
+};
+
+const buildImageElements = (imageSize) => {
+  const iw = Math.round(260 * imageSize), ih = Math.round(180 * imageSize);
+  return [
+    { type: 'headline', x: 40, y: 50, width: 350, height: 45, fontSize: 26, text: 'Welcome', color: '#2c2c2c' },
+    { type: 'text', x: 40, y: 110, width: 350, height: 60 },
+    { type: 'image', x: Math.max(20, 600 - iw / 2), y: Math.max(30, 150 - ih / 2), width: Math.min(iw, 760), height: Math.min(ih, 400), size: imageSize },
+    { type: 'cta', x: 40, y: 200, width: 150, height: 40, color: '#1a8a6a', brightness: 0.6 },
+    { type: 'text', x: 40, y: 300, width: 720, height: 60 },
+  ];
+};
+
+const buildAdElements = (adCount) => {
+  const base = [
+    { type: 'headline', x: 40, y: 50, width: 400, height: 45, fontSize: 28, text: 'Main Content', color: '#2c2c2c' },
+    { type: 'text', x: 40, y: 110, width: 400, height: 80 },
+    { type: 'cta', x: 40, y: 220, width: 160, height: 42, color: '#1a8a6a', brightness: 0.7 },
+    { type: 'image', x: 500, y: 50, width: 260, height: 155, size: 1 },
+    { type: 'text', x: 40, y: 310, width: 720, height: 55 },
+  ];
+  const adColors = ['#d4553a', '#c4960c', '#b04080', '#6b5ca5'];
+  // Ads are placed within the active content zone so they intercept
+  // the natural reading path and compete with key elements.
+  const adPos = [
+    { x: 500, y: 220, width: 260, height: 55 },  // right side, just below image
+    { x: 40,  y: 380, width: 720, height: 52 },  // full-width banner below text
+    { x: 40,  y: 450, width: 340, height: 50 },  // lower-left
+    { x: 400, y: 450, width: 360, height: 50 },  // lower-right
+  ];
+  for (let i = 0; i < adCount; i++) base.push({ type: 'ad', ...adPos[i], color: adColors[i] });
+  return base;
+};
+
 export default function FactorsSection() {
   return (
     <section id="factors" className="section" style={{ background: 'var(--bg-primary)' }}>
@@ -102,67 +153,24 @@ export default function FactorsSection() {
           <FactorDemo icon="&#x1F4D0;" title="Visual Hierarchy (Text Size)"
             description="Larger text attracts fixations earlier and longer. Shrink the headline and watch it lose attention priority."
             paramLabel="Headline Size" paramMin={12} paramMax={42} paramStep={2} defaultVal={32}
-            buildElements={useCallback((fontSize) => [
-              { type: 'headline', x: 40, y: 60, width: 400, height: 50, fontSize, text: 'Big Headline', color: '#2c2c2c' },
-              { type: 'text', x: 40, y: 140, width: 400, height: 100 },
-              { type: 'image', x: 500, y: 60, width: 260, height: 180, size: 1 },
-              { type: 'cta', x: 40, y: 270, width: 160, height: 42, color: '#1a8a6a', brightness: 0.7 },
-              { type: 'text', x: 40, y: 350, width: 720, height: 80 },
-            ], [])} />
+            buildElements={buildHierarchyElements} />
 
           <FactorDemo icon="&#x1F3A8;" title="Color &amp; Contrast"
             description="High-contrast, warm-colored elements attract more fixations. Change the CTA color to see the effect."
             paramLabel="CTA Warmth" paramMin={0} paramMax={1} paramStep={0.1} defaultVal={0.5}
-            buildElements={useCallback((warmth) => {
-              const r = Math.round(26 + warmth * 186), g = Math.round(138 - warmth * 60), b = Math.round(106 - warmth * 80);
-              return [
-                { type: 'headline', x: 40, y: 60, width: 400, height: 50, fontSize: 28, text: 'Our Product', color: '#2c2c2c' },
-                { type: 'text', x: 40, y: 130, width: 400, height: 80 },
-                { type: 'cta', x: 40, y: 240, width: 180, height: 46, color: `rgb(${r},${g},${b})`, brightness: warmth },
-                { type: 'image', x: 480, y: 60, width: 280, height: 200, size: 1 },
-                { type: 'text', x: 40, y: 330, width: 720, height: 80 },
-              ];
-            }, [])} />
+            buildElements={buildColorElements} />
 
           <FactorDemo icon="&#x1F5BC;&#xFE0F;" title="Image Size &amp; Placement"
             description="Images are fixation magnets. A large image can dominate the scanpath and delay attention to text and CTAs."
             paramLabel="Image Size" paramMin={0.3} paramMax={1.4} paramStep={0.1} defaultVal={1}
             numFixations={8}
-            buildElements={useCallback((imageSize) => {
-              const iw = Math.round(260 * imageSize), ih = Math.round(180 * imageSize);
-              return [
-                { type: 'headline', x: 40, y: 50, width: 350, height: 45, fontSize: 26, text: 'Welcome', color: '#2c2c2c' },
-                { type: 'text', x: 40, y: 110, width: 350, height: 60 },
-                { type: 'image', x: Math.max(20, 600 - iw / 2), y: Math.max(30, 150 - ih / 2), width: Math.min(iw, 760), height: Math.min(ih, 400), size: imageSize },
-                { type: 'cta', x: 40, y: 200, width: 150, height: 40, color: '#1a8a6a', brightness: 0.6 },
-                { type: 'text', x: 40, y: 300, width: 720, height: 60 },
-              ];
-            }, [])} />
+            buildElements={buildImageElements} />
 
           <FactorDemo icon="&#x1F4E2;" title="Ads &amp; Visual Noise"
             description="Ad banners and distractors scatter the scanpath. More noise = less focused attention on your key content."
             paramLabel="Ad Count" paramMin={0} paramMax={4} paramStep={1} defaultVal={0}
             numFixations={8}
-            buildElements={useCallback((adCount) => {
-              const base = [
-                { type: 'headline', x: 40, y: 50, width: 400, height: 45, fontSize: 28, text: 'Main Content', color: '#2c2c2c' },
-                { type: 'text', x: 40, y: 110, width: 400, height: 80 },
-                { type: 'cta', x: 40, y: 220, width: 160, height: 42, color: '#1a8a6a', brightness: 0.7 },
-                { type: 'image', x: 500, y: 50, width: 260, height: 155, size: 1 },
-                { type: 'text', x: 40, y: 310, width: 720, height: 55 },
-              ];
-              const adColors = ['#d4553a', '#c4960c', '#b04080', '#6b5ca5'];
-              // Ads are placed within the active content zone so they intercept
-              // the natural reading path and compete with key elements.
-              const adPos = [
-                { x: 500, y: 220, width: 260, height: 55 },  // right side, just below image
-                { x: 40,  y: 380, width: 720, height: 52 },  // full-width banner below text
-                { x: 40,  y: 450, width: 340, height: 50 },  // lower-left
-                { x: 400, y: 450, width: 360, height: 50 },  // lower-right
-              ];
-              for (let i = 0; i < adCount; i++) base.push({ type: 'ad', ...adPos[i], color: adColors[i] });
-              return base;
-            }, [])} />
+            buildElements={buildAdElements} />
         </div>
 
         <EyeTrackingExperiment />

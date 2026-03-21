@@ -1,8 +1,38 @@
 import { useEffect, useRef, useState } from 'react';
 import './IntroSection.css';
 
-/* ── Animated particle background for hero ─────────────────────── */
-function HeroCanvas() {
+/* ── Scanpath visualization for hero ───────────────────────────── */
+const FIXATIONS = [
+  { x: 170, y: 36  },   // nav / logo
+  { x: 108, y: 108 },   // hero image
+  { x: 252, y: 108 },   // sidebar
+  { x: 130, y: 175 },   // body text
+  { x:  60, y: 218 },   // CTA button
+  { x: 210, y: 162 },   // more text
+  { x: 170, y: 36  },   // back to nav
+];
+const DWELL_MS   = 1100;  // time spent fixating at each point
+const SACCADE_MS =  480;  // time for each jump between points
+const STEP_MS    = DWELL_MS + SACCADE_MS;
+const CYCLE_MS   = STEP_MS * FIXATIONS.length;
+
+// Time-based: ts is the requestAnimationFrame DOMHighResTimeStamp
+function getGaze(ts) {
+  const t       = ts % CYCLE_MS;
+  const stepIdx = Math.floor(t / STEP_MS) % FIXATIONS.length;
+  const stepT   = t - stepIdx * STEP_MS;
+  const cur     = FIXATIONS[stepIdx];
+  const nxt     = FIXATIONS[(stepIdx + 1) % FIXATIONS.length];
+
+  if (stepT <= DWELL_MS) {
+    return { x: cur.x, y: cur.y, fixing: true };
+  }
+  const s    = (stepT - DWELL_MS) / SACCADE_MS;
+  const ease = s < 0.5 ? 4*s*s*s : 1 - Math.pow(-2*s + 2, 3) / 2;
+  return { x: cur.x + (nxt.x - cur.x) * ease, y: cur.y + (nxt.y - cur.y) * ease, fixing: false };
+}
+
+function ScanpathViz() {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -10,78 +40,88 @@ function HeroCanvas() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
-    let animId;
-    let shapes = [];
+    const W = 340, H = 270;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const resize = () => {
-      canvas.width = canvas.offsetWidth * dpr;
-      canvas.height = canvas.offsetHeight * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const accent = '#1a8a6a';
+    // trail stores {x, y, ts} — faded by elapsed time, not frame count
+    const TRAIL_FADE_MS = 2200;
+    let trail = [], animId;
+
+    const rr = (x, y, w, h, r) => {
+      ctx.beginPath(); ctx.roundRect(x, y, w, h, r);
     };
-    resize();
 
-    // Create small floating eye/triangle shapes
-    for (let i = 0; i < 40; i++) {
-      shapes.push({
-        x: Math.random() * canvas.offsetWidth,
-        y: Math.random() * canvas.offsetHeight,
-        size: 4 + Math.random() * 10,
-        rotation: Math.random() * Math.PI * 2,
-        rotSpeed: (Math.random() - 0.5) * 0.015,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        opacity: 0.15 + Math.random() * 0.25,
-        type: Math.random() > 0.5 ? 'triangle' : 'circle',
+    const draw = (ts) => {
+      ctx.clearRect(0, 0, W, H);
+
+      // ── Wireframe ─────────────────────────────────────────────
+      // Nav bar
+      ctx.fillStyle = '#e8e4dd'; ctx.strokeStyle = '#d0cbc3'; ctx.lineWidth = 1;
+      rr(16, 16, 308, 30, 4); ctx.fill(); ctx.stroke();
+      // Nav logo pill
+      ctx.fillStyle = '#d0cbc3'; rr(24, 23, 48, 16, 3); ctx.fill();
+      // Nav links
+      [82, 104, 126].forEach(x => { ctx.fillStyle = '#d8d3cc'; rr(x, 26, 16, 10, 2); ctx.fill(); });
+
+      // Hero image block
+      ctx.fillStyle = '#e0dcd5'; ctx.strokeStyle = '#ccc7be';
+      rr(16, 56, 185, 90, 5); ctx.fill(); ctx.stroke();
+      // Image placeholder X lines
+      ctx.strokeStyle = '#ccc7be'; ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.moveTo(16, 56); ctx.lineTo(201, 146); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(201, 56); ctx.lineTo(16, 146); ctx.stroke();
+
+      // Sidebar
+      ctx.fillStyle = '#edeae5'; ctx.strokeStyle = '#d8d3cc'; ctx.lineWidth = 1;
+      rr(209, 56, 115, 90, 5); ctx.fill(); ctx.stroke();
+      [68, 84, 100, 116].forEach(y => {
+        ctx.fillStyle = '#d8d3cc'; rr(218, y, [70, 85, 65, 50][y===68?0:y===84?1:y===100?2:3], 7, 2); ctx.fill();
       });
-    }
 
-    const draw = () => {
-      const w = canvas.offsetWidth, h = canvas.offsetHeight;
-      ctx.clearRect(0, 0, w, h);
+      // Text lines
+      [[16, 156, 220], [16, 170, 190], [16, 184, 245], [16, 198, 160]].forEach(([x, y, w]) => {
+        ctx.fillStyle = '#ddd8d0'; rr(x, y, w, 7, 2); ctx.fill();
+      });
 
-      for (const s of shapes) {
-        s.x += s.vx; s.y += s.vy; s.rotation += s.rotSpeed;
-        if (s.x < -20) s.x = w + 20;
-        if (s.x > w + 20) s.x = -20;
-        if (s.y < -20) s.y = h + 20;
-        if (s.y > h + 20) s.y = -20;
+      // CTA button
+      ctx.fillStyle = 'rgba(26,138,106,0.12)'; ctx.strokeStyle = accent; ctx.lineWidth = 1.5;
+      rr(16, 215, 90, 24, 5); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = accent; ctx.font = '8px Inter,sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('Read more →', 61, 230);
 
-        ctx.save();
-        ctx.translate(s.x, s.y);
-        ctx.rotate(s.rotation);
-        ctx.globalAlpha = s.opacity;
-        ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-        ctx.lineWidth = 1;
+      // ── Trail ─────────────────────────────────────────────────
+      const gaze = getGaze(ts);
+      trail.push({ x: gaze.x, y: gaze.y, ts });
+      trail = trail.filter(p => ts - p.ts < TRAIL_FADE_MS);
 
-        if (s.type === 'triangle') {
-          ctx.beginPath();
-          ctx.moveTo(0, -s.size);
-          ctx.lineTo(s.size * 0.87, s.size * 0.5);
-          ctx.lineTo(-s.size * 0.87, s.size * 0.5);
-          ctx.closePath();
-          ctx.stroke();
-        } else {
-          ctx.beginPath();
-          ctx.arc(0, 0, s.size * 0.5, 0, Math.PI * 2);
-          ctx.stroke();
-          // dot in center
-          ctx.fillStyle = 'rgba(255,255,255,0.4)';
-          ctx.beginPath();
-          ctx.arc(0, 0, 1.5, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        ctx.restore();
+      for (let i = 1; i < trail.length; i++) {
+        const a = trail[i-1], b = trail[i];
+        const alpha = (1 - (ts - b.ts) / TRAIL_FADE_MS) * 0.4;
+        ctx.strokeStyle = `rgba(26,138,106,${alpha})`;
+        ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
       }
 
-      ctx.globalAlpha = 1;
+      // ── Gaze cursor ───────────────────────────────────────────
+      if (gaze.fixing) {
+        ctx.strokeStyle = `rgba(26,138,106,0.45)`; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(gaze.x, gaze.y, 13, 0, Math.PI*2); ctx.stroke();
+      }
+      ctx.fillStyle = accent;
+      ctx.beginPath(); ctx.arc(gaze.x, gaze.y, 4.5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      ctx.beginPath(); ctx.arc(gaze.x, gaze.y, 2, 0, Math.PI*2); ctx.fill();
+
       animId = requestAnimationFrame(draw);
     };
-    draw();
-    window.addEventListener('resize', resize);
-    return () => { cancelAnimationFrame(animId); window.removeEventListener('resize', resize); };
+    animId = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(animId);
   }, []);
 
-  return <canvas ref={ref} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }} />;
+  return <canvas ref={ref} style={{ width: 340, height: 270, borderRadius: 10, border: '1px solid var(--border)', display: 'block' }} />;
 }
 
 /* ── Horizontal Timeline with hover cards ──────────────────────── */
@@ -180,20 +220,23 @@ function AppCard({ icon, title, desc }) {
 export default function IntroSection() {
   return (
     <section id="intro">
-      {/* Dark hero header — Explorable Explanations style */}
+      {/* Split editorial hero */}
       <div className="is-hero">
-        <HeroCanvas />
-        <div className="is-hero-content">
-          <h1 className="is-hero-title">
-            EYE TRACKING
-          </h1>
-          <p className="is-hero-subtitle">& How We See the Web</p>
-        </div>
-        {/* Speech bubble arrow pointing down */}
-        <div className="is-arrow">
-          <svg width="60" height="30" viewBox="0 0 60 30">
-            <polygon points="0,0 60,0 30,30" fill="#ffffff" />
-          </svg>
+        <div className="is-hero-inner">
+          <div className="is-hero-left">
+            <h1 className="is-hero-title">
+              Eye Tracking<br />
+              <span className="is-hero-title-accent">&amp; How We See the Web</span>
+            </h1>
+            <p className="is-hero-desc">
+              Every time you look at a screen, your eyes make 3–4 rapid movements per second.
+              Explore how eye tracking reveals where attention goes — and why it matters for design.
+            </p>
+          </div>
+          <div className="is-hero-right">
+            <ScanpathViz />
+            <p className="is-hero-caption">Simulated scanpath on a webpage wireframe</p>
+          </div>
         </div>
       </div>
 

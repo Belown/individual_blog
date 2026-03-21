@@ -22,5 +22,4 @@ export default function Footer() {
 const footerStyle = {
   borderTop: '1px solid var(--border)',
   background: 'var(--bg-secondary)',
-  marginTop: '24px',
 };
