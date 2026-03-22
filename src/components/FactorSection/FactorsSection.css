@@ -83,6 +83,35 @@ details[open] .fs-ref-chevron {
   transform: rotate(-90deg);
 }
 
+.fs-play-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.75;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  transition: opacity 250ms ease, transform 150ms ease, box-shadow 200ms ease;
+}
+.fs-play-btn:hover {
+  opacity: 1;
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+.fs-play-btn:active {
+  transform: scale(0.95);
+}
+
 @media (max-width: 680px) {
   .fs-demo-grid { padding: 0 16px; gap: 14px; }
 }

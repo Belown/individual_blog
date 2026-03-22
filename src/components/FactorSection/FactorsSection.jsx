@@ -7,6 +7,7 @@ function FactorDemo({ title, description, icon, paramLabel, paramMin, paramMax, 
   const ref = useRef(null);
   const [val, setVal] = useState(defaultVal);
   const [visibleCount, setVisibleCount] = useState(0);
+  const [playing, setPlaying] = useState(true);
   const timerRef = useRef(null);
 
   const currentElements = useMemo(() => buildElements(val), [val, buildElements]);
@@ -16,11 +17,15 @@ function FactorDemo({ title, description, icon, paramLabel, paramMin, paramMax, 
 
   useEffect(() => { setVisibleCount(0); }, [fixations]);
   useEffect(() => {
+    if (!playing) return;
     if (visibleCount < fixations.length) {
       timerRef.current = setTimeout(() => setVisibleCount(c => c + 1), visibleCount === 0 ? 250 : 420);
       return () => clearTimeout(timerRef.current);
     }
-  }, [visibleCount, fixations.length]);
+    // All fixations shown — pause, then restart the loop
+    timerRef.current = setTimeout(() => setVisibleCount(0), 1500);
+    return () => clearTimeout(timerRef.current);
+  }, [visibleCount, fixations.length, playing]);
 
   const draw = useCallback(() => {
     const canvas = ref.current;
@@ -61,7 +66,21 @@ function FactorDemo({ title, description, icon, paramLabel, paramMin, paramMax, 
         <h4 style={{ margin: 0 }}>{title}</h4>
       </div>
       <p style={{ fontSize: '0.9rem', marginBottom: 14 }}>{description}</p>
-      <canvas ref={ref} className="demo-canvas" style={{ height: 300, marginBottom: 14 }} />
+      <div style={{ position: 'relative' }}>
+        <canvas ref={ref} className="demo-canvas" style={{ height: 300 }} />
+        <button
+          onClick={() => setPlaying(p => !p)}
+          title={playing ? 'Pause animation' : 'Play animation'}
+          className="fs-play-btn"
+          aria-label={playing ? 'Pause' : 'Play'}
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+            {playing
+              ? <><rect x="2" y="1" width="3.5" height="12" rx="1" /><rect x="8.5" y="1" width="3.5" height="12" rx="1" /></>
+              : <path d="M3 1.5a.8.8 0 0 1 1.2-.7l8.5 5.2a.8.8 0 0 1 0 1.4l-8.5 5.2A.8.8 0 0 1 3 12V1.5Z" />}
+          </svg>
+        </button>
+      </div>
       <div className="fs-slider-row">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span className="fs-slider-label">
