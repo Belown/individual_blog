@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { simulateScanpath, drawPageElements, drawScanpath } from '../../utils/scenewalkSimulator';
+import { simulateScanpath, drawPageElements, drawScanpath, getCanvasColors, onThemeChange } from '../../utils/scenewalkSimulator';
 import './ScanpathChallenge.css';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -85,9 +85,10 @@ function dtwSimilarity(a, b) {
 // ── Ghost scanpath draw (reference path) ─────────────────────────────────────
 function drawReferencePath(ctx, fixations, sx, sy) {
   if (fixations.length < 2) return;
+  const c = getCanvasColors();
   ctx.save();
   ctx.setLineDash([5, 4]);
-  ctx.strokeStyle = 'rgba(150,140,130,0.55)';
+  ctx.strokeStyle = c.refLine;
   ctx.lineWidth   = 1.5;
   for (let i = 1; i < fixations.length; i++) {
     ctx.beginPath();
@@ -98,12 +99,12 @@ function drawReferencePath(ctx, fixations, sx, sy) {
   ctx.setLineDash([]);
   fixations.forEach((f, i) => {
     const fx = f.x * sx, fy = f.y * sy;
-    ctx.fillStyle   = 'rgba(160,150,140,0.22)';
-    ctx.strokeStyle = 'rgba(150,140,130,0.6)';
+    ctx.fillStyle   = c.refHalo;
+    ctx.strokeStyle = c.refCircle;
     ctx.lineWidth   = 1.5;
     ctx.beginPath(); ctx.arc(fx, fy, 9, 0, Math.PI * 2);
     ctx.fill(); ctx.stroke();
-    ctx.fillStyle = 'rgba(120,110,100,0.7)';
+    ctx.fillStyle = c.refText;
     ctx.font = `bold ${Math.max(7, 8 * sx)}px Inter, sans-serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(`${i + 1}`, fx, fy);
@@ -178,7 +179,7 @@ export default function ScanpathChallenge() {
       setCanvasH(H);
       const ctx = canvas.getContext('2d');
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.fillStyle = '#fafaf8';
+      ctx.fillStyle = getCanvasColors().canvasBg;
       ctx.fillRect(0, 0, W, H);
       const sx = W / SIM_W, sy = H / SIM_H;
       drawPageElements(ctx, elements, sx, sy);
@@ -191,9 +192,11 @@ export default function ScanpathChallenge() {
   }, [elements, fixations]);
 
   useEffect(() => {
-    const ro = new ResizeObserver(() => drawRef.current?.());
+    const redraw = () => drawRef.current?.();
+    const ro = new ResizeObserver(redraw);
     if (canvasRef.current) ro.observe(canvasRef.current);
-    return () => ro.disconnect();
+    const stopTheme = onThemeChange(redraw);
+    return () => { ro.disconnect(); stopTheme(); };
   }, []);
 
   // ── Render ───────────────────────────────────────────────────────
@@ -216,11 +219,6 @@ export default function ScanpathChallenge() {
 
         {/* ── Left: controls ── */}
         <div className="sc-panel" style={canvasH ? { maxHeight: canvasH } : undefined}>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span className="sc-section-label">Design Controls</span>
-            <span className="interaction-hint">Drag &amp; click</span>
-          </div>
 
           <div className="sc-control">
             <div className="sc-control-header">

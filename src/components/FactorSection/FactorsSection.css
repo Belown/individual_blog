@@ -89,9 +89,9 @@ details[open] .fs-ref-chevron {
   right: 8px;
   width: 32px;
   height: 32px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--play-btn-border);
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--play-btn-bg);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   color: var(--text-secondary);

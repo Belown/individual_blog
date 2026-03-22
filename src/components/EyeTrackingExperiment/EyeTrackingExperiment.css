@@ -15,7 +15,7 @@
 }
 
 .ete-entry-card--error {
-  border-color: #d4553a;
+  border-color: var(--accent-warm);
 }
 
 .ete-requires-list {
@@ -126,7 +126,7 @@
 .ete-overlay {
   position: fixed;
   inset: 0;
-  background: #000;
+  background: var(--bg-primary);
   z-index: 2000;
   display: flex;
   align-items: center;
@@ -139,14 +139,16 @@
   top: 16px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
+  background: var(--bg-card);
+  color: var(--text-primary);
   padding: 8px 20px;
   border-radius: 8px;
+  border: 1px solid var(--border);
   font-family: 'Inter', sans-serif;
   font-size: 0.85rem;
   z-index: 2002;
   white-space: nowrap;
+  box-shadow: var(--shadow-sm);
 }
 
 .ete-centre-box {
@@ -155,9 +157,10 @@
   align-items: center;
   max-width: 480px;
   padding: 32px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
 }
 
 .ete-factor-label {
@@ -166,23 +169,23 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-muted);
   margin-bottom: 8px;
 }
 
 .ete-variant-badge {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 12px;
 }
 
 .ete-variant-badge strong {
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .ete-hint-text {
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--text-secondary);
   text-align: center;
   font-family: 'Inter', sans-serif;
   font-size: 0.9rem;
@@ -202,14 +205,15 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 20px;
-  background: rgba(0, 0, 0, 0.75);
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
 
 .ete-viewing-label {
   font-family: 'Inter', sans-serif;
   font-size: 0.85rem;
-  color: #fff;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
@@ -217,7 +221,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 1.2rem;
   font-weight: 800;
-  color: #d4553a;
+  color: var(--accent-warm);
 }
 
 /* Trial content div (replaces canvas) */
@@ -225,7 +229,7 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  background: #f5f5f0;
+  background: var(--bg-secondary);
   display: flex;
   justify-content: center;
   padding: 0;
@@ -235,11 +239,11 @@
 .tp-page {
   width: 100%;
   max-width: 900px;
-  background: #fff;
+  background: var(--bg-primary);
   padding: 24px 48px 32px;
   box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  color: #1a1a1a;
+  color: var(--text-primary);
   min-height: 100%;
 }
 
@@ -248,13 +252,13 @@
   align-items: center;
   gap: 0;
   padding-bottom: 14px;
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 1px solid var(--border);
   margin-bottom: 28px;
 }
 .tp-logo {
   font-weight: 800;
   font-size: 1.1rem;
-  color: #1a8a6a;
+  color: var(--accent);
   letter-spacing: -0.02em;
   margin-right: 24px;
   flex-shrink: 0;
@@ -266,7 +270,7 @@
 }
 .tp-nav-links a {
   font-size: 0.85rem;
-  color: #555;
+  color: var(--text-muted);
   cursor: pointer;
   text-decoration: none;
 }
@@ -287,11 +291,11 @@
 }
 .tp-btn-ghost {
   background: none;
-  border: 1px solid #ddd;
-  color: #333;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
 }
-.tp-btn-green { background: #1a8a6a; color: #fff; }
-.tp-btn-warm  { background: #d4553a; color: #fff; }
+.tp-btn-green { background: var(--accent); color: #fff; }
+.tp-btn-warm  { background: var(--accent-warm); color: #fff; }
 
 .tp-cta {
   padding: 11px 26px;
@@ -313,14 +317,14 @@
   font-size: 1.1rem;
   font-weight: 700;
   line-height: 1.35;
-  color: #111;
+  color: var(--text-primary);
   margin: 0 0 14px;
 }
 .tp-headline-md {
   font-size: 1.6rem;
   font-weight: 800;
   line-height: 1.25;
-  color: #111;
+  color: var(--text-primary);
   margin: 0 0 14px;
   letter-spacing: -0.02em;
 }
@@ -328,7 +332,7 @@
   font-size: 2.5rem;
   font-weight: 800;
   line-height: 1.15;
-  color: #111;
+  color: var(--text-primary);
   margin: 0 0 18px;
   letter-spacing: -0.035em;
 }
@@ -336,35 +340,35 @@
   font-size: 1.5rem;
   font-weight: 800;
   line-height: 1.25;
-  color: #111;
+  color: var(--text-primary);
   margin: 0 0 10px;
 }
 
 .tp-body {
   font-size: 0.9rem;
   line-height: 1.7;
-  color: #444;
+  color: var(--text-secondary);
   margin: 0 0 12px;
 }
 .tp-fine {
   font-size: 0.72rem;
-  color: #999;
+  color: var(--text-muted);
   margin: 6px 0 0;
 }
 .tp-byline {
   font-size: 0.78rem;
-  color: #888;
+  color: var(--text-muted);
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border);
 }
 .tp-strip {
   display: flex;
   gap: 20px;
   padding-top: 16px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--border);
   font-size: 0.8rem;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .tp-img {
@@ -386,18 +390,18 @@
 }
 .tp-article-meta {
   font-size: 0.72rem;
-  color: #999;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-bottom: 8px;
 }
 .tp-pullquote {
-  border-left: 4px solid #1a8a6a;
+  border-left: 4px solid var(--accent);
   margin: 16px 0;
   padding: 10px 18px;
-  background: #f4faf7;
+  background: var(--accent-light);
   font-style: italic;
-  color: #333;
+  color: var(--text-primary);
   font-size: 0.92rem;
   line-height: 1.55;
 }
@@ -443,7 +447,7 @@
   flex: 1;
   width: 100%;
   display: block;
-  background: #fafaf8;
+  background: var(--canvas-bg);
 }
 
 /* ── Face detection badge (option 6) ── */
@@ -556,10 +560,11 @@
   height: 40px;
   border-radius: 50%;
   background: #60a5fa;
-  border: 3px solid rgba(255, 255, 255, 0.9);
+  border: 3px solid var(--bg-card);
   pointer-events: none;
   z-index: 2002;
   animation: ete-valid-glow 1.4s ease-out infinite;
+  box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.4);
 }
 
 .ete-valid-progress-track {
@@ -568,7 +573,7 @@
   left: 0;
   right: 0;
   height: 5px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-surface);
   z-index: 2002;
   border-radius: 0 0 0 0;
 }
@@ -612,7 +617,7 @@
 .ete-valid-result-label {
   font-family: 'Inter', sans-serif;
   font-size: 0.65rem;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--text-muted);
 }
 
 /* ── Comparison ── */
@@ -642,14 +647,14 @@
 
 .ete-compare-card {
   flex: 1;
-  background: rgba(255, 255, 255, 0.96);
+  background: var(--bg-card);
   border-radius: 10px;
   padding: 12px;
   min-width: 0;
 }
 
 .ete-insight-overlay {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
   font-size: 0.88rem;
   text-align: center;
   max-width: 600px;

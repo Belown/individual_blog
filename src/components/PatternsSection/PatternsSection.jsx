@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { getCanvasColors, onThemeChange } from '../../utils/scenewalkSimulator';
 import './PatternsSection.css';
 
 /* ── Pattern Demo Canvas ───────────────────────────────────────── */
@@ -35,12 +36,12 @@ function PatternCanvas({ pattern, label }) {
 
   // Draw different backgrounds per pattern type
   const drawBackground = (ctx, w, h) => {
-    ctx.fillStyle = '#fafaf8';
+    const c = getCanvasColors();
+    ctx.fillStyle = c.canvasBg;
     ctx.fillRect(0, 0, w, h);
 
     if (pattern === 'f-pattern') {
-      // Text-heavy page: many lines of text
-      ctx.fillStyle = '#e8e4dd';
+      ctx.fillStyle = c.navBg;
       for (let row = 0; row < 5; row++) {
         const y0 = 20 + row * 52;
         const numLines = 3;
@@ -50,21 +51,20 @@ function PatternCanvas({ pattern, label }) {
         }
       }
     } else if (pattern === 'z-pattern') {
-      // Visual landing page: logo top-left, nav top-right, hero center, CTA bottom-right
       // Top bar
-      ctx.fillStyle = '#e8e4dd';
-      ctx.fillRect(30, 35, 60, 18); // logo
-      ctx.fillRect(355, 37, 30, 15); // login button
+      ctx.fillStyle = c.navBg;
+      ctx.fillRect(30, 35, 60, 18);
+      ctx.fillRect(355, 37, 30, 15);
 
       // Central hero area
       const hx = 110, hy = 70, hw = 220, hh = 140;
-      ctx.fillStyle = '#f0ede8';
+      ctx.fillStyle = c.imageBg;
       ctx.fillRect(hx, hy, hw, hh);
-      ctx.strokeStyle = '#ddd8d0'; ctx.lineWidth = 1;
+      ctx.strokeStyle = c.imageBorder; ctx.lineWidth = 1;
       ctx.strokeRect(hx, hy, hw, hh);
 
-      // Mountain + sun inside hero (relative to hero box)
-      ctx.fillStyle = '#ddd8d0';
+      // Mountain + sun inside hero
+      ctx.fillStyle = c.imageBorder;
       ctx.beginPath();
       ctx.moveTo(hx, hy + hh);
       ctx.lineTo(hx + hw * 0.25, hy + hh * 0.35);
@@ -73,18 +73,17 @@ function PatternCanvas({ pattern, label }) {
       ctx.lineTo(hx + hw, hy + hh);
       ctx.closePath();
       ctx.fill();
-      // Sun
       ctx.beginPath();
       ctx.arc(hx + hw * 0.82, hy + hh * 0.25, 10, 0, Math.PI * 2);
       ctx.fill();
 
-      // Bottom area: tagline left, CTA right
-      ctx.fillStyle = '#e8e4dd';
+      // Bottom area
+      ctx.fillStyle = c.navBg;
       ctx.fillRect(30, 225, 130, 8);
       ctx.fillRect(30, 240, 100, 8);
 
       // CTA button
-      ctx.fillStyle = '#1a59ce';
+      ctx.fillStyle = c.ctaBlue;
       const bx = 340, by = 225, bw = 60, bh = 28, br = 5;
       ctx.beginPath();
       ctx.moveTo(bx+br,by); ctx.lineTo(bx+bw-br,by); ctx.quadraticCurveTo(bx+bw,by,bx+bw,by+br);
@@ -103,65 +102,53 @@ function PatternCanvas({ pattern, label }) {
       const x1 = pad, x2 = pad + qw + gap;
       const y1 = pad, y2 = pad + qh + gap;
 
-      // Quadrant fills — colour = attention level
-      // Primary (top-left): high attention → warm teal tint
       ctx.fillStyle = 'rgba(26,138,106,0.18)';
       ctx.fillRect(x1, y1, qw, qh);
-      // Strong Fallow (top-right): medium-low → muted gold
       ctx.fillStyle = 'rgba(196,150,12,0.12)';
       ctx.fillRect(x2, y1, qw, qh);
-      // Weak Fallow (bottom-left): low → muted warm
       ctx.fillStyle = 'rgba(196,150,12,0.08)';
       ctx.fillRect(x1, y2, qw, qh);
-      // Terminal (bottom-right): high attention → warm teal tint (slightly less than primary)
       ctx.fillStyle = 'rgba(26,138,106,0.13)';
       ctx.fillRect(x2, y2, qw, qh);
 
-      // Quadrant borders
-      ctx.strokeStyle = 'rgba(0,0,0,0.08)';
+      ctx.strokeStyle = c.quadrantBorder;
       ctx.lineWidth = 1;
       ctx.strokeRect(x1, y1, qw, qh);
       ctx.strokeRect(x2, y1, qw, qh);
       ctx.strokeRect(x1, y2, qw, qh);
       ctx.strokeRect(x2, y2, qw, qh);
 
-      // Labels
       ctx.font = "bold 11px 'Inter', sans-serif";
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#3a6b5a';
+      ctx.fillStyle = c.labelPrimary;
       ctx.fillText('① Primary', x1 + qw / 2, y1 + qh / 2 - 8);
-      ctx.fillStyle = '#555';
+      ctx.fillStyle = c.labelSecondary;
       ctx.font = "10px 'Inter', sans-serif";
       ctx.fillText('High attention', x1 + qw / 2, y1 + qh / 2 + 8);
 
-      ctx.fillStyle = '#7a6820'; ctx.font = "bold 11px 'Inter', sans-serif";
+      ctx.fillStyle = c.labelFallow; ctx.font = "bold 11px 'Inter', sans-serif";
       ctx.fillText('Strong Fallow', x2 + qw / 2, y1 + qh / 2 - 8);
-      ctx.fillStyle = '#888'; ctx.font = "10px 'Inter', sans-serif";
+      ctx.fillStyle = c.labelMuted; ctx.font = "10px 'Inter', sans-serif";
       ctx.fillText('Low attention', x2 + qw / 2, y1 + qh / 2 + 8);
 
-      ctx.fillStyle = '#7a6820'; ctx.font = "bold 11px 'Inter', sans-serif";
+      ctx.fillStyle = c.labelFallow; ctx.font = "bold 11px 'Inter', sans-serif";
       ctx.fillText('Weak Fallow', x1 + qw / 2, y2 + qh / 2 - 8);
-      ctx.fillStyle = '#888'; ctx.font = "10px 'Inter', sans-serif";
+      ctx.fillStyle = c.labelMuted; ctx.font = "10px 'Inter', sans-serif";
       ctx.fillText('Lowest attention', x1 + qw / 2, y2 + qh / 2 + 8);
 
-      ctx.fillStyle = '#3a6b5a'; ctx.font = "bold 11px 'Inter', sans-serif";
+      ctx.fillStyle = c.labelPrimary; ctx.font = "bold 11px 'Inter', sans-serif";
       ctx.fillText('④ Terminal', x2 + qw / 2, y2 + qh / 2 - 8);
-      ctx.fillStyle = '#555'; ctx.font = "10px 'Inter', sans-serif";
+      ctx.fillStyle = c.labelSecondary; ctx.font = "10px 'Inter', sans-serif";
       ctx.fillText('High attention', x2 + qw / 2, y2 + qh / 2 + 8);
 
       ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
     } else if (pattern === 'layer-cake') {
-      // Headings with body text blocks
-      const headingColor = '#d0ccc5';
-      const bodyColor = '#e8e4dd';
       for (let i = 0; i < 4; i++) {
         const y0 = 18 + i * 70;
-        // Heading bar
-        ctx.fillStyle = headingColor;
+        ctx.fillStyle = c.headingBar;
         const hw = (w - 60) * (0.4 + Math.abs(Math.sin(i * 2)) * 0.5);
         ctx.fillRect(30, y0, hw, 8);
-        // Body lines (lighter, to show they're skipped)
-        ctx.fillStyle = bodyColor;
+        ctx.fillStyle = c.bodyBar;
         for (let j = 0; j < 3; j++) {
           const lw = (w - 60) * (0.5 + Math.abs(Math.sin(i * 3 + j * 2)) * 0.4);
           ctx.fillRect(30, y0 + 16 + j * 12, lw, 4);
@@ -291,7 +278,8 @@ function PatternCanvas({ pattern, label }) {
     resize();
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
-    return () => ro.disconnect();
+    const stopTheme = onThemeChange(resize);
+    return () => { ro.disconnect(); stopTheme(); };
   }, [drawScene, pts.length]);
 
   useEffect(() => {

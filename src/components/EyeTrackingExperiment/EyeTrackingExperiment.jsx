@@ -471,9 +471,9 @@ function ResultCard({ content, gazePoints, label }) {
           position: 'relative',
           height: THUMB_H,
           overflow: 'hidden',
-          background: '#fff',
+          background: 'var(--bg-primary)',
           borderRadius: 8,
-          border: '1px solid #e8e8e8',
+          border: '1px solid var(--border)',
           cursor: dims.scale > 0 ? 'pointer' : 'default',
         }}
       >
@@ -512,7 +512,7 @@ function ResultCard({ content, gazePoints, label }) {
             style={{
               position: 'relative', maxWidth: CONTENT_W, width: '100%',
               maxHeight: '90vh', overflowY: 'auto',
-              borderRadius: 12, background: '#fff',
+              borderRadius: 12, background: 'var(--bg-primary)',
             }}
             onClick={e => e.stopPropagation()}
           >
@@ -1150,8 +1150,8 @@ export default function EyeTrackingExperiment() {
           {phase === 'loading' && (
             <div className="ete-centre-box">
               <div style={{ fontSize: '2rem', marginBottom: 12 }}>⏳</div>
-              <p style={{ color: '#fff', fontFamily: "'Inter', sans-serif" }}>Starting camera…</p>
-              <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.78rem', fontFamily: "'Inter', sans-serif", marginTop: 8 }}>
+              <p style={{ color: 'var(--text-primary)', fontFamily: "'Inter', sans-serif" }}>Starting camera…</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', fontFamily: "'Inter', sans-serif", marginTop: 8 }}>
                 Watch the badge in the top-right corner — it turns green once your face is detected.
               </p>
             </div>
@@ -1189,13 +1189,13 @@ export default function EyeTrackingExperiment() {
           {phase === 'pre_validation' && (
             <div className="ete-centre-box" style={{ maxWidth: 440, gap: 14 }}>
               <div style={{ fontSize: '1.5rem' }}>✅</div>
-              <h3 style={{ color: '#fff', margin: 0, fontFamily: "'Inter', sans-serif" }}>
+              <h3 style={{ color: 'var(--text-primary)', margin: 0, fontFamily: "'Inter', sans-serif" }}>
                 Calibration Complete
               </h3>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem', textAlign: 'center', lineHeight: 1.5, margin: 0 }}>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', textAlign: 'center', lineHeight: 1.5, margin: 0 }}>
                 Next, we'll check accuracy. A <strong style={{ color: '#60a5fa' }}>blue dot</strong> will appear at {VALID_PTS.length} positions —
-                <strong style={{ color: 'rgba(255,255,255,0.85)' }}> just look at each dot</strong> and
-                hold your gaze steady. <strong style={{ color: 'rgba(255,255,255,0.85)' }}>No clicking needed</strong> — the dot will advance automatically.
+                <strong style={{ color: 'var(--text-primary)' }}> just look at each dot</strong> and
+                hold your gaze steady. <strong style={{ color: 'var(--text-primary)' }}>No clicking needed</strong> — the dot will advance automatically.
               </p>
               <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={() => {
                 setValidIdx(-1);    // sentinel: dot hidden until startValidationPoint sets it to 0
@@ -1252,7 +1252,7 @@ export default function EyeTrackingExperiment() {
           {phase === 'validation_result' && (
             <div className="ete-centre-box" style={{ maxWidth: 480, gap: 18 }}>
               <div style={{ fontSize: '1.5rem' }}>🎯</div>
-              <h3 style={{ color: '#fff', margin: 0, fontFamily: "'Inter', sans-serif" }}>
+              <h3 style={{ color: 'var(--text-primary)', margin: 0, fontFamily: "'Inter', sans-serif" }}>
                 Calibration Accuracy
               </h3>
               {/* Per-point coloured dots */}
@@ -1278,7 +1278,7 @@ export default function EyeTrackingExperiment() {
                 <div style={{ fontSize: '1.05rem', fontFamily: "'Inter', sans-serif", color: validRatingColor, fontWeight: 700 }}>
                   {validRating} — avg {validAvg < 999 ? Math.round(validAvg) : '?'} px error
                 </div>
-                <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.5)', fontFamily: "'Inter', sans-serif", marginTop: 6, maxWidth: 360 }}>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: "'Inter', sans-serif", marginTop: 6, maxWidth: 360 }}>
                   {validRating === 'Poor'
                     ? 'Accuracy is low — recalibrating should improve gaze data quality.'
                     : validRating === 'Fair'
@@ -1308,7 +1308,7 @@ export default function EyeTrackingExperiment() {
               <div className="ete-factor-label">
                 Trial {trialStep + 1} of {trialList.length}
               </div>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem', marginBottom: 20 }}>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginBottom: 20 }}>
                 View the page naturally for {TRIAL_MS / 1000} seconds. Recording starts immediately.
               </p>
               <button className="btn btn-primary" onClick={startViewing}>

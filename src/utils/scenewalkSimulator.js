@@ -305,32 +305,98 @@ export function simulateScanpath(elements, opts = {}) {
   return fixations;
 }
 
-// ── Drawing helpers (unchanged API) ──────────────────────────────────────────
+// ── Canvas theme palette ─────────────────────────────────────────────────────
+
+const LIGHT_PALETTE = {
+  canvasBg: '#fafaf8',
+  headline: '#2c2c2c',
+  textLine: '#e0dcd5',
+  imageBg: '#f0ede8',
+  imageBorder: '#ddd8d0',
+  ctaDefault: '#1a8a6a',
+  ctaText: '#fff',
+  defaultFill: '#f0ede8',
+  // Wireframe elements (IntroSection hero)
+  navBg: '#e8e4dd', navBorder: '#d0cbc3', navLogo: '#d0cbc3', navLink: '#d8d3cc',
+  heroBg: '#e0dcd5', heroBorder: '#ccc7be',
+  sidebarBg: '#edeae5', sidebarBorder: '#d8d3cc', sidebarText: '#d8d3cc',
+  bodyText: '#ddd8d0',
+  ctaBg: 'rgba(26,138,106,0.12)',
+  // Patterns
+  headingBar: '#d0ccc5', bodyBar: '#e8e4dd',
+  quadrantBorder: 'rgba(0,0,0,0.08)',
+  labelPrimary: '#3a6b5a', labelSecondary: '#555', labelFallow: '#7a6820', labelMuted: '#888',
+  ctaBlue: '#1a59ce',
+  // Reference path
+  refLine: 'rgba(150,140,130,0.55)', refHalo: 'rgba(160,150,140,0.22)',
+  refCircle: 'rgba(150,140,130,0.6)', refText: 'rgba(120,110,100,0.7)',
+};
+
+const DARK_PALETTE = {
+  canvasBg: '#252525',
+  headline: '#e8e8e8',
+  textLine: '#3e3e3e',
+  imageBg: '#333333',
+  imageBorder: '#4a4a4a',
+  ctaDefault: '#2bb88a',
+  ctaText: '#fff',
+  defaultFill: '#333333',
+  navBg: '#333333', navBorder: '#4a4a4a', navLogo: '#4a4a4a', navLink: '#444444',
+  heroBg: '#3a3a3a', heroBorder: '#4a4a4a',
+  sidebarBg: '#303030', sidebarBorder: '#444444', sidebarText: '#444444',
+  bodyText: '#3e3e3e',
+  ctaBg: 'rgba(43,184,138,0.15)',
+  headingBar: '#4a4a4a', bodyBar: '#3a3a3a',
+  quadrantBorder: 'rgba(255,255,255,0.08)',
+  labelPrimary: '#5cc8a0', labelSecondary: '#aaa', labelFallow: '#daa520', labelMuted: '#777',
+  ctaBlue: '#4a8af5',
+  refLine: 'rgba(160,155,150,0.55)', refHalo: 'rgba(160,155,150,0.18)',
+  refCircle: 'rgba(160,155,150,0.5)', refText: 'rgba(180,175,170,0.7)',
+};
+
+export function getCanvasColors() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return isDark ? DARK_PALETTE : LIGHT_PALETTE;
+}
+
+// Subscribe to theme changes, returns cleanup function
+export function onThemeChange(callback) {
+  const observer = new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      if (m.attributeName === 'data-theme') { callback(); break; }
+    }
+  });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  return () => observer.disconnect();
+}
+
+// ── Drawing helpers ──────────────────────────────────────────────────────────
 
 export function drawPageElements(ctx, elements, sx, sy) {
+  const c = getCanvasColors();
   for (const el of elements) {
     const ex = el.x * sx, ey = el.y * sy, ew = el.width * sx, eh = el.height * sy;
     switch (el.type) {
       case 'headline':
-        ctx.fillStyle = el.color || '#2c2c2c';
+        ctx.fillStyle = el.color ? (c === DARK_PALETTE ? c.headline : el.color) : c.headline;
         ctx.font = `bold ${Math.max(10, (el.fontSize || 28) * sx)}px Inter, sans-serif`;
         ctx.textBaseline = 'top';
         ctx.fillText(el.text || 'Headline', ex, ey);
         break;
       case 'text':
-        ctx.fillStyle = '#e0dcd5';
+        ctx.fillStyle = c.textLine;
         for (let i = 0; i < Math.floor(eh / (12 * sy)); i++)
           ctx.fillRect(ex, ey + i * 12 * sy, ew * (0.6 + Math.abs(Math.sin(i * 2.5)) * 0.4), 4 * sy);
         break;
       case 'image':
-        ctx.fillStyle = '#f0ede8'; ctx.fillRect(ex, ey, ew, eh);
-        ctx.strokeStyle = '#ddd8d0'; ctx.lineWidth = 1; ctx.strokeRect(ex, ey, ew, eh);
-        ctx.fillStyle = '#ddd8d0'; ctx.beginPath();
+        ctx.fillStyle = c.imageBg; ctx.fillRect(ex, ey, ew, eh);
+        ctx.strokeStyle = c.imageBorder; ctx.lineWidth = 1; ctx.strokeRect(ex, ey, ew, eh);
+        ctx.fillStyle = c.imageBorder; ctx.beginPath();
         ctx.moveTo(ex, ey + eh); ctx.lineTo(ex + ew * 0.4, ey + eh * 0.35);
         ctx.lineTo(ex + ew * 0.7, ey + eh * 0.6); ctx.lineTo(ex + ew, ey + eh); ctx.fill();
         break;
       case 'cta': {
-        ctx.fillStyle = el.color || '#1a8a6a';
+        ctx.fillStyle = el.color || c.ctaDefault;
         const cr = 5 * sx;
         ctx.beginPath(); ctx.moveTo(ex + cr, ey); ctx.lineTo(ex + ew - cr, ey);
         ctx.quadraticCurveTo(ex + ew, ey, ex + ew, ey + cr); ctx.lineTo(ex + ew, ey + eh - cr);
@@ -338,7 +404,7 @@ export function drawPageElements(ctx, elements, sx, sy) {
         ctx.quadraticCurveTo(ex, ey + eh, ex, ey + eh - cr); ctx.lineTo(ex, ey + cr);
         ctx.quadraticCurveTo(ex, ey, ex + cr, ey); ctx.fill();
         const ctaFs = el.ctaFontSize || 11;
-        ctx.fillStyle = '#fff'; ctx.font = `600 ${Math.max(8, ctaFs * sx)}px Inter, sans-serif`;
+        ctx.fillStyle = c.ctaText; ctx.font = `600 ${Math.max(8, ctaFs * sx)}px Inter, sans-serif`;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(el.text || 'Get Started', ex + ew / 2, ey + eh / 2);
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
@@ -356,7 +422,7 @@ export function drawPageElements(ctx, elements, sx, sy) {
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
         break;
       default:
-        ctx.fillStyle = '#f0ede8'; ctx.fillRect(ex, ey, ew, eh);
+        ctx.fillStyle = c.defaultFill; ctx.fillRect(ex, ey, ew, eh);
     }
   }
 }

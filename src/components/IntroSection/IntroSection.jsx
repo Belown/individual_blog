@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { getCanvasColors } from '../../utils/scenewalkSimulator';
 import './IntroSection.css';
 
 /* ── Scanpath visualization for hero ───────────────────────────── */
@@ -55,41 +56,42 @@ function ScanpathViz() {
     };
 
     const draw = (ts) => {
+      const c = getCanvasColors();
       ctx.clearRect(0, 0, W, H);
 
       // ── Wireframe ─────────────────────────────────────────────
       // Nav bar
-      ctx.fillStyle = '#e8e4dd'; ctx.strokeStyle = '#d0cbc3'; ctx.lineWidth = 1;
+      ctx.fillStyle = c.navBg; ctx.strokeStyle = c.navBorder; ctx.lineWidth = 1;
       rr(16, 16, 308, 30, 4); ctx.fill(); ctx.stroke();
       // Nav logo pill
-      ctx.fillStyle = '#d0cbc3'; rr(24, 23, 48, 16, 3); ctx.fill();
+      ctx.fillStyle = c.navLogo; rr(24, 23, 48, 16, 3); ctx.fill();
       // Nav links
-      [82, 104, 126].forEach(x => { ctx.fillStyle = '#d8d3cc'; rr(x, 26, 16, 10, 2); ctx.fill(); });
+      [82, 104, 126].forEach(x => { ctx.fillStyle = c.navLink; rr(x, 26, 16, 10, 2); ctx.fill(); });
 
       // Hero image block
-      ctx.fillStyle = '#e0dcd5'; ctx.strokeStyle = '#ccc7be';
+      ctx.fillStyle = c.heroBg; ctx.strokeStyle = c.heroBorder;
       rr(16, 56, 185, 90, 5); ctx.fill(); ctx.stroke();
       // Image placeholder X lines
-      ctx.strokeStyle = '#ccc7be'; ctx.lineWidth = 0.8;
+      ctx.strokeStyle = c.heroBorder; ctx.lineWidth = 0.8;
       ctx.beginPath(); ctx.moveTo(16, 56); ctx.lineTo(201, 146); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(201, 56); ctx.lineTo(16, 146); ctx.stroke();
 
       // Sidebar
-      ctx.fillStyle = '#edeae5'; ctx.strokeStyle = '#d8d3cc'; ctx.lineWidth = 1;
+      ctx.fillStyle = c.sidebarBg; ctx.strokeStyle = c.sidebarBorder; ctx.lineWidth = 1;
       rr(209, 56, 115, 90, 5); ctx.fill(); ctx.stroke();
       [68, 84, 100, 116].forEach(y => {
-        ctx.fillStyle = '#d8d3cc'; rr(218, y, [70, 85, 65, 50][y===68?0:y===84?1:y===100?2:3], 7, 2); ctx.fill();
+        ctx.fillStyle = c.sidebarText; rr(218, y, [70, 85, 65, 50][y===68?0:y===84?1:y===100?2:3], 7, 2); ctx.fill();
       });
 
       // Text lines
       [[16, 156, 220], [16, 170, 190], [16, 184, 245], [16, 198, 160]].forEach(([x, y, w]) => {
-        ctx.fillStyle = '#ddd8d0'; rr(x, y, w, 7, 2); ctx.fill();
+        ctx.fillStyle = c.bodyText; rr(x, y, w, 7, 2); ctx.fill();
       });
 
       // CTA button
-      ctx.fillStyle = 'rgba(26,138,106,0.12)'; ctx.strokeStyle = accent; ctx.lineWidth = 1.5;
+      ctx.fillStyle = c.ctaBg; ctx.strokeStyle = c.ctaDefault; ctx.lineWidth = 1.5;
       rr(16, 215, 90, 24, 5); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = accent; ctx.font = '8px Inter,sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = c.ctaDefault; ctx.font = '8px Inter,sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('Read more →', 61, 230);
 
       // ── Trail ─────────────────────────────────────────────────

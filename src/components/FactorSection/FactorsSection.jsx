@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { simulateScanpath, drawPageElements, drawScanpath } from '../../utils/scenewalkSimulator';
+import { simulateScanpath, drawPageElements, drawScanpath, getCanvasColors, onThemeChange } from '../../utils/scenewalkSimulator';
 import EyeTrackingExperiment from '../EyeTrackingExperiment/EyeTrackingExperiment';
 import './FactorsSection.css';
 
@@ -35,7 +35,7 @@ function FactorDemo({ title, description, icon, paramLabel, paramMin, paramMax, 
     const w = canvas.width / dpr, h = canvas.height / dpr;
     ctx.clearRect(0, 0, w, h);
     const sx = w / 800, sy = h / 600;
-    ctx.fillStyle = '#fafaf8';
+    ctx.fillStyle = getCanvasColors().canvasBg;
     ctx.fillRect(0, 0, w, h);
     drawPageElements(ctx, currentElements, sx, sy);
     drawScanpath(ctx, fixations.slice(0, visibleCount), sx, sy);
@@ -56,7 +56,8 @@ function FactorDemo({ title, description, icon, paramLabel, paramMin, paramMax, 
     resize();
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
-    return () => ro.disconnect();
+    const stopTheme = onThemeChange(resize);
+    return () => { ro.disconnect(); stopTheme(); };
   }, [draw]);
 
   return (
