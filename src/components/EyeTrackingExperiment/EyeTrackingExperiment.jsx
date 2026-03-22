@@ -1033,7 +1033,7 @@ export default function EyeTrackingExperiment() {
           <div className="ete-requires-list">
             <span>📷 Webcam required</span>
             <span>🔒 All processing is local — no data leaves your browser</span>
-            <span>⏱ ~3 minutes to complete</span>
+            <span>⏱ 5-7 minutes to complete</span>
           </div>
           <button className="btn btn-primary" style={{ marginTop: 20 }} onClick={startWebGazer}>
             Start Eye Tracking Experiment

@@ -321,7 +321,7 @@ export default function PatternsSection() {
           <h2>How Eyes Scan a Page</h2>
           <p className="section-subtitle" style={{ maxWidth:'8000px' }}>
             Eye-tracking research has revealed several recurring patterns in how people scan
-            visual content. Understanding these patterns is the foundation of attention-aware design. And they are also widly used for guiding the attention of users.
+            visual content. Understanding these patterns is the foundation of attention-aware design. And they are also widely used for guiding the attention of users.
           </p>
         </div>
 

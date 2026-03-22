@@ -66,7 +66,7 @@ function FactorDemo({ title, description, icon, paramLabel, paramMin, paramMax, 
         <h4 style={{ margin: 0 }}>{title}</h4>
       </div>
       <p style={{ fontSize: '0.9rem', marginBottom: 14 }}>{description}</p>
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', cursor: 'not-allowed' }}>
         <canvas ref={ref} className="demo-canvas" style={{ height: 300 }} />
         <button
           onClick={() => setPlaying(p => !p)}
@@ -163,7 +163,7 @@ export default function FactorsSection() {
         </div>
 
         <div className="container">
-          <p style={{ textAlign: 'center', marginBottom: 32 }}>
+          <p style={{ textAlign: 'center', marginBottom: 32, width: '900px' }}>
             When you land on a webpage, your visual system rapidly evaluates the scene and decides
             where to look first. This decision is driven by <em>bottom-up salience</em> (what
             visually &quot;pops out&quot;) and <em>top-down goals</em> (what you&apos;re looking for).
