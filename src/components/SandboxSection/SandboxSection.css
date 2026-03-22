@@ -61,10 +61,6 @@
   font-size: 0.85rem;
   transition: border-color 200ms ease, box-shadow 200ms ease;
 }
-.ss-preview-card:hover {
-  border-color: var(--border-hover);
-  box-shadow: var(--shadow-sm);
-}
 
 .ss-preview-desc {
   font-size: 0.76rem;

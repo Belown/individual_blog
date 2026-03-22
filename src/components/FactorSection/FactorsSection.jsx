@@ -63,12 +63,15 @@ function FactorDemo({ title, description, icon, paramLabel, paramMin, paramMax, 
       <p style={{ fontSize: '0.9rem', marginBottom: 14 }}>{description}</p>
       <canvas ref={ref} className="demo-canvas" style={{ height: 300, marginBottom: 14 }} />
       <div className="fs-slider-row">
-        <span className="fs-slider-label">
-          {paramLabel}:{' '}
-          <strong style={{ color: 'var(--accent)' }}>
-            {typeof val === 'number' ? (paramStep < 1 ? `${Math.round(val * 100)}%` : val) : val}
-          </strong>
-        </span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span className="fs-slider-label">
+            {paramLabel}:{' '}
+            <strong style={{ color: 'var(--accent)' }}>
+              {typeof val === 'number' ? (paramStep < 1 ? `${Math.round(val * 100)}%` : val) : val}
+            </strong>
+          </span>
+          <span className="interaction-hint">Drag to adjust</span>
+        </div>
         <input type="range" min={paramMin} max={paramMax} step={paramStep} value={val}
           onChange={(e) => setVal(Number(e.target.value))} />
       </div>
@@ -179,7 +182,7 @@ export default function FactorsSection() {
           <summary className="fs-ref-summary">
             <span className="fs-ref-summary-icon">🧪</span>
             About the simulation model &amp; references
-            <span className="fs-ref-chevron">🧪</span>
+            <span className="fs-ref-chevron">&#x25C0;</span>
           </summary>
           <div className="fs-ref-body">
             <p style={{ marginTop: 2 }}>

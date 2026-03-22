@@ -304,8 +304,8 @@ function PatternCanvas({ pattern, label }) {
     <div className="card ps-pattern-card">
       <h4 style={{ marginBottom: 6 }}>{label}</h4>
       <canvas ref={ref} className="demo-canvas" style={{ height: 280, marginBottom: 12 }} />
-      <button className="btn btn-primary btn-sm" onClick={() => setPlaying(true)} disabled={playing}>
-        {playing ? '⏳ Playing…' : '▶ Animate'}
+      <button className="btn btn-primary btn-sm" style={{ minWidth: 120, height: 32 }} onClick={() => setPlaying(true)} disabled={playing}>
+        {playing ? 'Playing…' : '▶ Play'}
       </button>
     </div>
   );
@@ -380,8 +380,8 @@ export default function PatternsSection() {
         <h3 style={{ textAlign: 'center', marginBottom: 8, marginTop: 40, fontFamily: "'Inter', sans-serif" }}>
           Interactive Pattern Demos
         </h3>
-        <p style={{ textAlign: 'center', maxWidth: 460, margin: '0 auto 28px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-          Click &quot;Animate&quot; to watch each pattern unfold step by step.
+        <p className="interaction-hint" style={{ justifyContent: 'center', marginBottom: 16 }}>
+          Click &quot;Play&quot; to watch each pattern unfold step by step
         </p>
         <div className="ps-pattern-grid">
           <PatternCanvas pattern="f-pattern" label="F-Pattern" />

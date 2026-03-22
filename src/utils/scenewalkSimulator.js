@@ -337,9 +337,10 @@ export function drawPageElements(ctx, elements, sx, sy) {
         ctx.quadraticCurveTo(ex + ew, ey + eh, ex + ew - cr, ey + eh); ctx.lineTo(ex + cr, ey + eh);
         ctx.quadraticCurveTo(ex, ey + eh, ex, ey + eh - cr); ctx.lineTo(ex, ey + cr);
         ctx.quadraticCurveTo(ex, ey, ex + cr, ey); ctx.fill();
-        ctx.fillStyle = '#fff'; ctx.font = `600 ${Math.max(8, 11 * sx)}px Inter, sans-serif`;
+        const ctaFs = el.ctaFontSize || 11;
+        ctx.fillStyle = '#fff'; ctx.font = `600 ${Math.max(8, ctaFs * sx)}px Inter, sans-serif`;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('Get Started', ex + ew / 2, ey + eh / 2);
+        ctx.fillText(el.text || 'Get Started', ex + ew / 2, ey + eh / 2);
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
         break;
       }

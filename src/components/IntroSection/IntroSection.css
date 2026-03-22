@@ -114,10 +114,6 @@
 
 .is-concept-card {
   text-align: center;
-  transition: transform 200ms ease;
-}
-.is-concept-card:hover {
-  transform: translateY(-2px);
 }
 
 .is-concept-icon {
@@ -140,10 +136,6 @@
   min-height: 90px;
   text-align: center;
   transition: all 200ms ease;
-}
-.is-ht-card:hover {
-  border-color: var(--border-hover);
-  box-shadow: var(--shadow-sm);
 }
 
 .is-ht-card-year {
@@ -218,19 +210,23 @@
 }
 
 .is-ht-dot {
-  width: 10px;
-  height: 10px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: var(--border);
-  border: 2px solid #fff;
-  box-shadow: 0 0 0 1px var(--border);
+  background: var(--bg-elevated);
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 0 1px transparent;
   transition: all 200ms ease;
   margin-bottom: 8px;
+}
+.is-ht-dot-wrap:hover .is-ht-dot:not(.is-ht-dot--active) {
+  background: rgba(26, 138, 106, 0.25);
+  transform: scale(1.2);
 }
 
 .is-ht-dot--active {
   background: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent);
+  box-shadow: 0 0 0 3px rgba(26, 138, 106, 0.2);
   transform: scale(1.3);
 }
 

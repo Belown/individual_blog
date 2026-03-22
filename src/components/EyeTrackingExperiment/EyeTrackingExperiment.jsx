@@ -623,9 +623,95 @@ function shuffled(arr) {
   return a;
 }
 
+/* ── Celebration overlay ─────────────────────────────────────────*/
+function CelebrationOverlay({ onComplete }) {
+  const canvasRef = useRef(null);
+  const [fadeOut, setFadeOut] = useState(false);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // Confetti particles
+    const COLORS = ['#1a8a6a', '#3ddc84', '#f0a500', '#4a9eff', '#d4553a', '#6b5ca5', '#c4960c', '#ff6b9d'];
+    const particles = Array.from({ length: 120 }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * -H,
+      vx: (Math.random() - 0.5) * 4,
+      vy: Math.random() * 3 + 2,
+      size: Math.random() * 8 + 4,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      rotation: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 8,
+      shape: Math.random() > 0.5 ? 'rect' : 'circle',
+      wobble: Math.random() * Math.PI * 2,
+      wobbleSpeed: Math.random() * 0.1 + 0.03,
+    }));
+
+    let animId;
+    const draw = () => {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach(p => {
+        p.y += p.vy;
+        p.x += p.vx + Math.sin(p.wobble) * 0.8;
+        p.wobble += p.wobbleSpeed;
+        p.rotation += p.rotSpeed;
+        p.vy += 0.04; // gravity
+        if (p.y > H + 20) {
+          p.y = Math.random() * -40;
+          p.x = Math.random() * W;
+          p.vy = Math.random() * 3 + 2;
+        }
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rotation * Math.PI) / 180);
+        ctx.fillStyle = p.color;
+        if (p.shape === 'rect') {
+          ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      });
+      animId = requestAnimationFrame(draw);
+    };
+    animId = requestAnimationFrame(draw);
+
+    // Start fade-out after 2.8s, call onComplete after 3.5s
+    const fadeTimer = setTimeout(() => setFadeOut(true), 2000);
+    const doneTimer = setTimeout(() => onComplete(), 2500);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      clearTimeout(fadeTimer);
+      clearTimeout(doneTimer);
+    };
+  }, [onComplete]);
+
+  return (
+    <div className={`ete-celebration${fadeOut ? ' ete-celebration--fade' : ''}`}>
+      <canvas ref={canvasRef} className="ete-celebration-canvas" />
+      <div className="ete-celebration-content">
+        <div className="ete-celebration-emoji">🎉</div>
+        <h2 className="ete-celebration-title">Experiment Complete!</h2>
+        <p className="ete-celebration-sub">Great job — let&apos;s see how your eyes explored the designs.</p>
+      </div>
+    </div>
+  );
+}
+
 /* ── Main component ──────────────────────────────────────────────*/
 export default function EyeTrackingExperiment() {
-  // phase: idle | loading | calibrating | pre_validation | validating | validation_result | pretrial | viewing | done | error
+  // phase: idle | loading | calibrating | pre_validation | validating | validation_result | pretrial | viewing | celebrating | done | error
   const [phase,        setPhase]        = useState('idle');
   const [errorMsg,     setErrorMsg]     = useState('');
   const [calibIdx,     setCalibIdx]     = useState(0);
@@ -910,7 +996,7 @@ export default function EyeTrackingExperiment() {
       });
       const nextStep = trialStep + 1;
       if (nextStep >= trialList.length) {
-        setPhase('done');
+        setPhase('celebrating');
         stopCamera();
       } else {
         setTrialStep(nextStep);
@@ -920,7 +1006,7 @@ export default function EyeTrackingExperiment() {
   }, [trialStep, trialList, smooth, actualFi, actualVi, stopCamera]);
 
   /* ── Overlay backdrop ────────────────────────────────────────── */
-  const isOverlay = phase !== 'idle' && phase !== 'error' && phase !== 'done';
+  const isOverlay = phase !== 'idle' && phase !== 'error' && phase !== 'done' && phase !== 'celebrating';
   const showFaceBadge = phase === 'loading' || phase === 'calibrating' || phase === 'pre_validation' || phase === 'validating';
 
   /* ── Validation result helpers ───────────────────────────────── */
@@ -952,6 +1038,11 @@ export default function EyeTrackingExperiment() {
           <button className="btn btn-primary" style={{ marginTop: 20 }} onClick={startWebGazer}>
             Start Eye Tracking Experiment
           </button>
+          {/* DEBUG: preview celebration animation */}
+          <button className="btn btn-secondary" style={{ marginTop: 8, fontSize: '0.75rem' }}
+            onClick={() => setPhase('celebrating')}>
+            Debug: Test Celebration
+          </button>
         </div>
       )}
 
@@ -961,6 +1052,16 @@ export default function EyeTrackingExperiment() {
           <button className="btn btn-secondary" onClick={() => setPhase('idle')}>Try again</button>
         </div>
       )}
+
+      {/* Celebration overlay */}
+      {phase === 'celebrating' && <CelebrationOverlay onComplete={() => {
+        setPhase('done');
+        // Scroll to the experiment section after a brief delay for render
+        setTimeout(() => {
+          const el = document.querySelector('.ete-wrapper');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      }} />}
 
       {/* Done summary */}
       {phase === 'done' && (
@@ -979,8 +1080,8 @@ export default function EyeTrackingExperiment() {
                 <button className="ete-result-header" onClick={toggle} aria-expanded={isOpen}>
                   <span>{f.icon}</span>
                   <strong style={{ fontFamily: "'Inter', sans-serif" }}>{f.name}</strong>
-                  <span style={{ marginLeft: 'auto', fontSize: '0.85rem', opacity: 0.6 }}>
-                    {isOpen ? '▲' : '▼'}
+                  <span style={{ marginLeft: 'auto', fontSize: '0.7rem', opacity: 0.6, display: 'inline-block', transition: 'transform 200ms ease', transform: isOpen ? 'rotate(-90deg)' : 'none' }}>
+                    &#x25C0;
                   </span>
                 </button>
                 {isOpen && (

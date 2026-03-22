@@ -10,11 +10,6 @@
 .fs-demo-card {
   display: flex;
   flex-direction: column;
-  transition: transform 200ms ease, box-shadow 200ms ease;
-}
-.fs-demo-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
 }
 
 .fs-slider-row {
@@ -30,7 +25,7 @@
 }
 
 .fs-ref-details {
-  max-width: 860px;
+  max-width: 960px;
   margin: 40px auto 0;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -85,7 +80,7 @@
   transition: transform 200ms ease;
 }
 details[open] .fs-ref-chevron {
-  transform: rotate(90deg);
+  transform: rotate(-90deg);
 }
 
 @media (max-width: 680px) {

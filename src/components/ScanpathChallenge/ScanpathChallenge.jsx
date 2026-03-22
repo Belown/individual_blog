@@ -8,12 +8,12 @@ const SIM_H         = 600;
 const NUM_FIXATIONS = 8;
 
 // ── Image geometry (shared by builder + reference) ────────────────────────────
-const IMG_CENTER_X = 622;   // horizontal midpoint of the right column
+const IMG_CENTER_X = 600;   // horizontal midpoint of the right column
 const IMG_CENTER_Y = 150;   // vertical midpoint of the hero image zone
-const IMG_MAX_W    = 335;   // clamp so image stays within 800 px canvas
+const IMG_MAX_W    = 420;   // clamp so image stays within 800 px canvas
 
 // ── Element builder ───────────────────────────────────────────────────────────
-function buildElements({ headlineSize, imageSize, ctaColor, adsEnabled }) {
+function buildElements({ headlineSize, imageSize, ctaColor, adCount }) {
   const headlineH = Math.round(headlineSize * 2.1);
   const headlineY = 58;
   const textY     = headlineY + headlineH + 16;
@@ -33,23 +33,29 @@ function buildElements({ headlineSize, imageSize, ctaColor, adsEnabled }) {
       fontSize: headlineSize, text: 'Organise your team' },
     { type: 'text',     x: 40,   y: textY,     width: 375, height: 72 },
     { type: 'cta',      x: 40,   y: ctaY,      width: 168, height: 44,
-      color: ctaColor, brightness: ctaBrightness },
+      color: ctaColor, brightness: ctaBrightness, ctaFontSize: 15 },
     { type: 'image',    x: imgX, y: imgY,       width: imgW, height: imgH, size: imageSize },
+    // Bottom section — features row
+    { type: 'headline', x: 40,   y: 370, width: 300, height: 28, fontSize: 18, text: 'Why should we do this?', color: '#2c2c2c' },
+    { type: 'text',     x: 40,   y: 410, width: 220, height: 50 },
+    { type: 'text',     x: 290,  y: 410, width: 220, height: 50 },
+    { type: 'text',     x: 540,  y: 410, width: 220, height: 50 },
   ];
 
-  if (adsEnabled) {
-    els.push(
-      { type: 'ad', x: 40,                        y: 480, width: 720, height: 44, color: '#c4960c' },
-      { type: 'ad', x: IMG_CENTER_X - IMG_MAX_W / 2, y: 310, width: 325, height: 50, color: '#d4553a' },
-    );
-  }
+  const adSlots = [
+    { x: 40, y: 300, width: 500, height: 50, color: '#c4960c' },   // small rectangle next to CTA
+    { x: 40,  y: 540, width: 720, height: 35, color: '#d4553a' },   // leaderboard banner at bottom
+    { x: 40,  y: 480, width: 340, height: 45, color: '#6b5ca5' },   // medium rectangle below features left
+    { x: 400, y: 480, width: 360, height: 45, color: '#b04080' },   // medium rectangle below features right
+  ];
+  for (let i = 0; i < adCount; i++) els.push({ type: 'ad', ...adSlots[i] });
 
   return els;
 }
 
 // ── Reference (optimal) scanpath — computed once at module level ──────────────
-// Large headline + warm CTA + small image = the intended viewing pattern.
-const REF_ELEMENTS  = buildElements({ headlineSize: 36, imageSize: 0.55, ctaColor: '#d4553a', adsEnabled: false });
+// Large headline + warm CTA + moderate image + no ads = the intended viewing pattern.
+const REF_ELEMENTS  = buildElements({ headlineSize: 36, imageSize: 1.25, ctaColor: '#d4553a', adCount: 0 });
 const REF_FIXATIONS = simulateScanpath(REF_ELEMENTS, { numFixations: NUM_FIXATIONS, seed: 42, canvasW: SIM_W, canvasH: SIM_H });
 
 // ── Dynamic Time Warping on (x, y) sequences ─────────────────────────────────
@@ -115,16 +121,16 @@ function getTip(fixations, score, controls) {
   const ctaIdx = types.indexOf('cta');
   const imgIdx = types.indexOf('image');
 
-  if (first === 'image' || first === 'ad')
-    return 'Large spatial offset on fixation 1: the image or ad is pulling gaze away from the top-left starting region of the reference path. Reduce image size.';
-  if (first !== 'headline')
+  if (controls.adCount > 0)
+    return 'Ads are scattering mid-path fixations across the canvas, increasing DTW distance from the reference. Remove distractors first.';
+  if (first !== 'headline' && controls.headlineSize < 30)
     return 'First fixation is far from the reference start. Increase headline size so it anchors the opening gaze near the top-left, matching the reference.';
-  if (controls.adsEnabled)
-    return 'Ads are scattering mid-path fixations across the canvas, increasing DTW distance from the reference. Disable distractors.';
-  if (ctaIdx === -1 || (imgIdx !== -1 && ctaIdx > imgIdx))
+  if (controls.ctaColor !== '#d4553a' && (ctaIdx === -1 || (imgIdx !== -1 && ctaIdx > imgIdx)))
     return 'The CTA fixation appears too late or after the image, creating a large sequential displacement from the reference path. Try a warmer CTA color.';
+  if (controls.imageSize < 1.0)
+    return 'The image is too small to anchor the right side of the layout. Increase image size to draw fixations toward the reference trajectory.';
 
-  return 'Paths are partially aligned. Fine-tune headline size or CTA color to bring the remaining fixations closer to the reference trajectory.';
+  return 'Paths are partially aligned. Fine-tune headline size, image size, or CTA color to bring the remaining fixations closer to the reference trajectory.';
 }
 
 // ── Default (intentionally suboptimal) starting controls ─────────────────────
@@ -132,14 +138,29 @@ const DEFAULT_CONTROLS = {
   headlineSize: 16,
   imageSize:    1.1,
   ctaColor:     '#6b5ca5',
-  adsEnabled:   false,
+  adCount:      0,
 };
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function ScanpathChallenge() {
   const [controls, setControls] = useState(DEFAULT_CONTROLS);
+  const [showTip, setShowTip]   = useState(false);
+  const [canvasH, setCanvasH]   = useState(null);
+  const hintRef   = useRef(null);
   const canvasRef = useRef(null);
   const drawRef   = useRef(null);
+
+  // Close hint when clicking outside
+  useEffect(() => {
+    if (!showTip) return;
+    const handleClick = (e) => {
+      if (hintRef.current && !hintRef.current.contains(e.target)) {
+        setShowTip(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [showTip]);
 
   const set = (key, val) => setControls(c => ({ ...c, [key]: val }));
 
@@ -168,6 +189,7 @@ export default function ScanpathChallenge() {
       canvas.width        = W * dpr;
       canvas.height       = H * dpr;
       canvas.style.height = H + 'px';
+      setCanvasH(H);
       const ctx = canvas.getContext('2d');
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.fillStyle = '#fafaf8';
@@ -207,9 +229,12 @@ export default function ScanpathChallenge() {
       <div className="sc-layout">
 
         {/* ── Left: controls ── */}
-        <div className="sc-panel">
+        <div className="sc-panel" style={canvasH ? { height: canvasH } : undefined}>
 
-          <span className="sc-section-label">Design Controls</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span className="sc-section-label">Design Controls</span>
+            <span className="interaction-hint">Drag &amp; click</span>
+          </div>
 
           <div className="sc-control">
             <div className="sc-control-header">
@@ -237,6 +262,20 @@ export default function ScanpathChallenge() {
             <div className="sc-range-labels"><span>Small</span><span>Large</span></div>
           </div>
 
+
+          <div className="sc-control">
+            <div className="sc-control-header">
+              <label htmlFor="sc-ads">Distractor Ads</label>
+              <span className="sc-value">{controls.adCount}</span>
+            </div>
+            <input id="sc-ads" type="range" min="0" max="4" step="1"
+              value={controls.adCount}
+              onChange={e => set('adCount', +e.target.value)}
+              className="sc-slider"
+            />
+            <div className="sc-range-labels"><span>None</span><span>4</span></div>
+          </div>
+
           <div className="sc-control">
             <label>CTA Color</label>
             <div className="sc-color-row">
@@ -253,26 +292,44 @@ export default function ScanpathChallenge() {
               ))}
             </div>
           </div>
-
-          <div className="sc-control">
-            <label className="sc-toggle-label">
-              <input type="checkbox"
-                checked={controls.adsEnabled}
-                onChange={e => set('adsEnabled', e.target.checked)}
-                className="sc-toggle"
-              />
-              Add distractor ads
-            </label>
-          </div>
-
           <button className="sc-reset" onClick={() => setControls(DEFAULT_CONTROLS)}>
             Reset to default
           </button>
 
+          {/* Score + DTW info below controls */}
+          <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '4px 0' }} />
+
+          <div className="sc-score-wrap">
+            <svg viewBox="0 0 80 80" className="sc-score-ring">
+              <circle cx="40" cy="40" r="32"
+                fill="none" stroke="var(--bg-surface)" strokeWidth="7" />
+              <circle cx="40" cy="40" r="32"
+                fill="none" stroke={scoreColor} strokeWidth="7" strokeLinecap="round"
+                strokeDasharray={`${2 * Math.PI * 32}`}
+                strokeDashoffset={`${2 * Math.PI * 32 * (1 - score / 100)}`}
+                transform="rotate(-90 40 40)"
+                style={{ transition: 'stroke-dashoffset 380ms ease, stroke 380ms ease' }}
+              />
+              <text x="40" y="45" textAnchor="middle" fontSize="16" fontWeight="700"
+                fontFamily="Inter, sans-serif" fill={scoreColor}>
+                {score}%
+              </text>
+            </svg>
+            <div className="sc-score-label" style={{ color: scoreColor }}>
+              {score >= 95 ? 'Near-perfect' : score >= 80 ? 'Close' : score >= 50 ? 'Partial' : 'Low match'}
+            </div>
+          </div>
+
         </div>
 
-        {/* ── Right: canvas + results ── */}
-        <div className="sc-canvas-wrap">
+        {/* ── Right: canvas ── */}
+        <div className="sc-canvas-wrap" style={{ position: 'relative' }}>
+          {/* Hint button top-right — expands into hint window */}
+          <div ref={hintRef} className={`sc-hint${showTip ? ' sc-hint--open' : ''}`}>
+            <span className="sc-hint-icon" onClick={() => setShowTip(t => !t)} style={{ cursor: 'pointer' }}>💡</span>
+            {showTip && <span className="sc-hint-text">{tip}</span>}
+          </div>
+
           <canvas ref={canvasRef} className="sc-canvas" />
 
           {/* Canvas legend */}
@@ -285,47 +342,6 @@ export default function ScanpathChallenge() {
               <span className="sc-legend-line sc-legend-line--user" />
               Your scanpath
             </span>
-          </div>
-
-          {/* Results strip */}
-          <div className="sc-results">
-
-            <div className="sc-score-wrap">
-              <svg viewBox="0 0 80 80" className="sc-score-ring">
-                <circle cx="40" cy="40" r="32"
-                  fill="none" stroke="var(--bg-surface)" strokeWidth="7" />
-                <circle cx="40" cy="40" r="32"
-                  fill="none" stroke={scoreColor} strokeWidth="7" strokeLinecap="round"
-                  strokeDasharray={`${2 * Math.PI * 32}`}
-                  strokeDashoffset={`${2 * Math.PI * 32 * (1 - score / 100)}`}
-                  transform="rotate(-90 40 40)"
-                  style={{ transition: 'stroke-dashoffset 380ms ease, stroke 380ms ease' }}
-                />
-                <text x="40" y="45" textAnchor="middle" fontSize="16" fontWeight="700"
-                  fontFamily="Inter, sans-serif" fill={scoreColor}>
-                  {score}%
-                </text>
-              </svg>
-              <div className="sc-score-label" style={{ color: scoreColor }}>
-                {score >= 95 ? 'Near-perfect' : score >= 80 ? 'Close' : score >= 50 ? 'Partial' : 'Low match'}
-              </div>
-            </div>
-
-            <div className="sc-dtw-info">
-              <div className="sc-dtw-title">Dynamic Time Warping (DTW)</div>
-              <p className="sc-dtw-body">
-                DTW aligns each fixation in your path to its closest counterpart in the reference,
-                allowing for temporal shifts. The score reflects how much total spatial displacement
-                remains after optimal alignment — the closer the two paths in screen space, the higher
-                the score.
-              </p>
-            </div>
-
-            <div className="sc-tip">
-              <span className="sc-tip-icon">💡</span>
-              <span>{tip}</span>
-            </div>
-
           </div>
         </div>
 

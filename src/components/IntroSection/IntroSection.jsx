@@ -289,6 +289,9 @@ export default function IntroSection() {
         <p style={{ marginBottom: 28 }}>
           From mechanical contraptions to webcam-based AI — eye tracking has come a long way.
         </p>
+        <p className="interaction-hint" style={{ textAlign: 'center', justifyContent: 'center', marginBottom: 10 }}>
+          Hover or click the years to explore
+        </p>
         <HorizontalTimeline />
 
         {/* Applications */}
