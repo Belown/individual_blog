@@ -10,6 +10,7 @@ const sections = [
 export default function Navigation() {
   const [active, setActive] = useState('intro');
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => {
@@ -28,6 +29,7 @@ export default function Navigation() {
 
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setMenuOpen(false);
   };
 
   return (
@@ -37,7 +39,19 @@ export default function Navigation() {
           <img src={eyeIcon} alt="Eye tracker icon" style={{ width: '2.5em', height: '2.5em' }} />
           <span style={s.brandText}>EyeTrack Explorer</span>
         </div>
-        <div style={s.links}>
+        <button
+          className="nav-hamburger"
+          onClick={() => setMenuOpen(o => !o)}
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            {menuOpen
+              ? <path d="M4.3 4.3a1 1 0 0 1 1.4 0L10 8.6l4.3-4.3a1 1 0 1 1 1.4 1.4L11.4 10l4.3 4.3a1 1 0 0 1-1.4 1.4L10 11.4l-4.3 4.3a1 1 0 0 1-1.4-1.4L8.6 10 4.3 5.7a1 1 0 0 1 0-1.4Z" />
+              : <><rect x="2" y="4" width="16" height="2" rx="1" /><rect x="2" y="9" width="16" height="2" rx="1" /><rect x="2" y="14" width="16" height="2" rx="1" /></>}
+          </svg>
+        </button>
+        <div className={`nav-links${menuOpen ? ' nav-links--open' : ''}`}>
           {sections.map((sec) => (
             <button
               key={sec.id}
@@ -77,16 +91,5 @@ const s = {
   brandText: {
     fontFamily: "'Inter', sans-serif", fontSize: '0.95rem', fontWeight: 700,
     color: '#2c2c2c',
-  },
-  links: { display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' },
-  link: {
-    padding: '6px 14px', border: 'none', borderRadius: 6,
-    background: 'transparent', color: '#888',
-    fontFamily: "'Inter', sans-serif", fontSize: '0.82rem', fontWeight: 500,
-    cursor: 'pointer', transition: 'all 200ms ease', whiteSpace: 'nowrap',
-  },
-  linkActive: {
-    color: '#1a8a6a', background: 'rgba(26,138,106,0.08)',
-    fontWeight: 600,
   },
 };

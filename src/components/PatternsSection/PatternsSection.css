@@ -27,6 +27,7 @@
 .ps-pattern-card {
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 

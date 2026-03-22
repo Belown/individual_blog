@@ -546,14 +546,14 @@ function CalibDot({ rx, ry, idx, done, active, clicksLeft, onClick }) {
       onClick={onClick}
       style={{
         position: 'fixed',
-        left: `calc(${rx * 100}vw - 18px)`, top: `calc(${ry * 100}vh - 18px)`,
-        width: 36, height: 36,
+        left: `calc(${rx * 100}vw - 22px)`, top: `calc(${ry * 100}vh - 22px)`,
+        width: 45, height: 45,
         borderRadius: '50%',
         background: done ? '#1a8a6a' : active ? '#d4553a' : '#ccc',
         border: `3px solid ${done ? '#0e5c48' : active ? '#a33' : '#999'}`,
         cursor: active ? 'pointer' : 'default',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color: '#fff', fontSize: '0.72rem', fontWeight: 700,
+        color: '#fff', fontSize: '0.82rem', fontWeight: 700,
         fontFamily: "'Inter', sans-serif",
         transition: 'background 200ms, transform 100ms',
         transform: active ? 'scale(1.1)' : 'scale(1)',
@@ -712,7 +712,18 @@ function CelebrationOverlay({ onComplete }) {
 /* ── Main component ──────────────────────────────────────────────*/
 export default function EyeTrackingExperiment() {
   // phase: idle | loading | calibrating | pre_validation | validating | validation_result | pretrial | viewing | celebrating | done | error
-  const [phase,        setPhase]        = useState('idle');
+  const [phase,        setPhase]        = useState(() => {
+    try {
+      const saved = localStorage.getItem('ete-gaze-data');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length === FACTORS.length && parsed.some(f => f.some(v => v.length > 0))) {
+          return 'done';
+        }
+      }
+    } catch { /* ignore */ }
+    return 'idle';
+  });
   const [errorMsg,     setErrorMsg]     = useState('');
   const [calibIdx,     setCalibIdx]     = useState(0);
   const [calibClicks,  setCalibClicks]  = useState(0);
@@ -722,11 +733,28 @@ export default function EyeTrackingExperiment() {
   const [trialStep, setTrialStep] = useState(0);
   const [countdown,    setCountdown]    = useState(5);
   const [gazeDot,      setGazeDot]      = useState(null);
-  const [gazeData,     setGazeData]     = useState(() => FACTORS.map(() => [[], []]));
+  const [gazeData,     setGazeData]     = useState(() => {
+    try {
+      const saved = localStorage.getItem('ete-gaze-data');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length === FACTORS.length) return parsed;
+      }
+    } catch { /* ignore */ }
+    return FACTORS.map(() => [[], []]);
+  });
   const [validIdx,     setValidIdx]     = useState(0);
   const [validErrors,  setValidErrors]  = useState([]);
   const [faceDetected, setFaceDetected] = useState(false);
   const [openFactors,  setOpenFactors]  = useState(new Set([0])); // first tab open by default
+
+  // Persist gaze data to localStorage so results survive a page reload
+  useEffect(() => {
+    const hasData = gazeData.some(f => f.some(v => v.length > 0));
+    if (hasData) {
+      try { localStorage.setItem('ete-gaze-data', JSON.stringify(gazeData)); } catch { /* ignore */ }
+    }
+  }, [gazeData]);
 
   const trialRef               = useRef(null); // the live trial content div
   const gazeBuffer             = useRef([]);
@@ -1035,13 +1063,13 @@ export default function EyeTrackingExperiment() {
             <span>🔒 All processing is local — no data leaves your browser</span>
             <span>⏱ 5-7 minutes to complete</span>
           </div>
-          <button className="btn btn-primary" style={{ marginTop: 20 }} onClick={startWebGazer}>
+          {/* Desktop-only gate */}
+          <div className="ete-mobile-notice">
+            <span style={{ fontSize: '1.2rem' }}>🖥️</span>
+            <span>This experiment requires a desktop browser with a webcam. Please visit on a laptop or desktop computer.</span>
+          </div>
+          <button className="btn btn-primary ete-desktop-only" style={{ marginTop: 20 }} onClick={startWebGazer}>
             Start Eye Tracking Experiment
-          </button>
-          {/* DEBUG: preview celebration animation */}
-          <button className="btn btn-secondary" style={{ marginTop: 8, fontSize: '0.75rem' }}
-            onClick={() => setPhase('celebrating')}>
-            Debug: Test Celebration
           </button>
         </div>
       )}
@@ -1100,6 +1128,7 @@ export default function EyeTrackingExperiment() {
           <button className="btn btn-secondary" style={{ marginTop: 12 }} onClick={() => {
             setPhase('idle');
             setGazeData(FACTORS.map(() => [[], []]));
+            try { localStorage.removeItem('ete-gaze-data'); } catch { /* ignore */ }
           }}>
             Reset experiment
           </button>
@@ -1135,14 +1164,6 @@ export default function EyeTrackingExperiment() {
                 <strong>Calibration</strong>&nbsp;—&nbsp;
                 Look at each red dot, then click it {CLICKS_PER_DOT} times.&nbsp;
                 ({calibIdx + 1}&nbsp;/&nbsp;{CALIB_PTS.length})
-                <button
-                  onClick={() => { setTrialStep(0); setPhase('pretrial'); }}
-                  style={{ marginLeft: 16, fontSize: '0.72rem', opacity: 0.5, background: 'none',
-                    border: '1px solid rgba(255,255,255,0.4)', color: '#fff', borderRadius: 4,
-                    padding: '2px 8px', cursor: 'pointer' }}
-                >
-                  skip (debug)
-                </button>
               </div>
               {/* Camera preview label — sits above the WebGazer video container */}
               <div className="ete-cam-label">
@@ -1172,9 +1193,9 @@ export default function EyeTrackingExperiment() {
                 Calibration Complete
               </h3>
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem', textAlign: 'center', lineHeight: 1.5, margin: 0 }}>
-                Next, we'll check accuracy. A dot will appear at {VALID_PTS.length} positions —
+                Next, we'll check accuracy. A <strong style={{ color: '#60a5fa' }}>blue dot</strong> will appear at {VALID_PTS.length} positions —
                 <strong style={{ color: 'rgba(255,255,255,0.85)' }}> just look at each dot</strong> and
-                hold your gaze steady. No clicking needed.
+                hold your gaze steady. <strong style={{ color: 'rgba(255,255,255,0.85)' }}>No clicking needed</strong> — the dot will advance automatically.
               </p>
               <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={() => {
                 setValidIdx(-1);    // sentinel: dot hidden until startValidationPoint sets it to 0
@@ -1192,7 +1213,7 @@ export default function EyeTrackingExperiment() {
               <div className="ete-calib-instructions">
                 <strong>Accuracy check</strong>&nbsp;—&nbsp;
                 {validIdx >= 0
-                  ? <>Look at the dot and hold still. ({validIdx + 1}&nbsp;/&nbsp;{VALID_PTS.length})</>
+                  ? <>Look at the <span style={{ color: '#60a5fa' }}>blue dot</span> and hold still (no clicking). ({validIdx + 1}&nbsp;/&nbsp;{VALID_PTS.length})</>
                   : <>Get ready…</>}
               </div>
               <div className="ete-cam-label">

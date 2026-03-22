@@ -216,16 +216,22 @@ function PatternCanvas({ pattern, label }) {
     const canvas = ref.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const w = canvas.width / (window.devicePixelRatio || 1);
-    const h = canvas.height / (window.devicePixelRatio || 1);
-    ctx.clearRect(0, 0, w, h);
+    const dpr = window.devicePixelRatio || 1;
+    const realW = canvas.width / dpr;
+    const realH = canvas.height / dpr;
+    const VW = 430, VH = 280;
+    const sx = realW / VW, sy = realH / VH;
+    ctx.clearRect(0, 0, realW, realH);
+    ctx.save();
+    ctx.scale(sx, sy);
 
-    drawBackground(ctx, w, h);
+    drawBackground(ctx, VW, VH);
 
     // Gutenberg: animate reading-gravity arrow instead of fixation dots
     if (pattern === 'gutenberg') {
       const arrowProgress = Math.min((upTo + progress) / (pts.length - 1), 1);
-      drawGutenbergArrow(ctx, w, h, arrowProgress);
+      drawGutenbergArrow(ctx, VW, VH, arrowProgress);
+      ctx.restore();
       return;
     }
 
@@ -269,16 +275,23 @@ function PatternCanvas({ pattern, label }) {
       ctx.fillText(`${i + 1}`, p.x, p.y);
     }
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.restore();
   }, [pts, pattern, drawGutenbergArrow]);
 
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = canvas.offsetWidth * dpr;
-    canvas.height = canvas.offsetHeight * dpr;
-    canvas.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
-    drawScene(pts.length, 1);
+    const resize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.offsetWidth * dpr;
+      canvas.height = canvas.offsetHeight * dpr;
+      canvas.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
+      drawScene(pts.length, 1);
+    };
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+    return () => ro.disconnect();
   }, [drawScene, pts.length]);
 
   useEffect(() => {
@@ -303,7 +316,7 @@ function PatternCanvas({ pattern, label }) {
   return (
     <div className="card ps-pattern-card">
       <h4 style={{ marginBottom: 6 }}>{label}</h4>
-      <canvas ref={ref} className="demo-canvas" style={{ height: 280, marginBottom: 12 }} />
+      <canvas ref={ref} className="demo-canvas" style={{ aspectRatio: '430 / 280', marginBottom: 12, cursor: 'not-allowed' }} />
       <button className="btn btn-primary btn-sm" style={{ minWidth: 120, height: 32 }} onClick={() => setPlaying(true)} disabled={playing}>
         {playing ? 'Playing…' : '▶ Play'}
       </button>

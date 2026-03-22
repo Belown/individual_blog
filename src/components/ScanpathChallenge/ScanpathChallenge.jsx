@@ -144,23 +144,9 @@ const DEFAULT_CONTROLS = {
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function ScanpathChallenge() {
   const [controls, setControls] = useState(DEFAULT_CONTROLS);
-  const [showTip, setShowTip]   = useState(false);
   const [canvasH, setCanvasH]   = useState(null);
-  const hintRef   = useRef(null);
   const canvasRef = useRef(null);
   const drawRef   = useRef(null);
-
-  // Close hint when clicking outside
-  useEffect(() => {
-    if (!showTip) return;
-    const handleClick = (e) => {
-      if (hintRef.current && !hintRef.current.contains(e.target)) {
-        setShowTip(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, [showTip]);
 
   const set = (key, val) => setControls(c => ({ ...c, [key]: val }));
 
@@ -229,7 +215,7 @@ export default function ScanpathChallenge() {
       <div className="sc-layout">
 
         {/* ── Left: controls ── */}
-        <div className="sc-panel" style={canvasH ? { height: canvasH } : undefined}>
+        <div className="sc-panel" style={canvasH ? { maxHeight: canvasH } : undefined}>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span className="sc-section-label">Design Controls</span>
@@ -315,8 +301,8 @@ export default function ScanpathChallenge() {
                 {score}%
               </text>
             </svg>
-            <div className="sc-score-label" style={{ color: scoreColor }}>
-              {score >= 95 ? 'Near-perfect' : score >= 80 ? 'Close' : score >= 50 ? 'Partial' : 'Low match'}
+            <div className={`sc-score-label${score >= 95 ? ' sc-congrats' : ''}`} style={{ color: scoreColor }}>
+              {score >= 95 ? 'You\'ve mastered the design controls!' : score >= 80 ? 'Close' : score >= 50 ? 'Partial' : 'Low match'}
             </div>
           </div>
 
@@ -324,12 +310,6 @@ export default function ScanpathChallenge() {
 
         {/* ── Right: canvas ── */}
         <div className="sc-canvas-wrap" style={{ position: 'relative' }}>
-          {/* Hint button top-right — expands into hint window */}
-          <div ref={hintRef} className={`sc-hint${showTip ? ' sc-hint--open' : ''}`}>
-            <span className="sc-hint-icon" onClick={() => setShowTip(t => !t)} style={{ cursor: 'pointer' }}>💡</span>
-            {showTip && <span className="sc-hint-text">{tip}</span>}
-          </div>
-
           <canvas ref={canvasRef} className="sc-canvas" />
 
           {/* Canvas legend */}
@@ -342,6 +322,12 @@ export default function ScanpathChallenge() {
               <span className="sc-legend-line sc-legend-line--user" />
               Your scanpath
             </span>
+          </div>
+
+          {/* Contextual tip — always visible */}
+          <div className="sc-tip-bar">
+            <span className="sc-tip-icon">💡</span>
+            <p className="sc-tip-text">{tip}</p>
           </div>
         </div>
 

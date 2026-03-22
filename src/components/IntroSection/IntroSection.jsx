@@ -187,17 +187,20 @@ function HorizontalTimeline() {
         <div className="is-ht-line" />
         <div className="is-ht-dots">
           {timelineData.map((item, i) => (
-            <div
+            <button
               key={item.year}
               className="is-ht-dot-wrap"
               onMouseEnter={() => setActiveIdx(i)}
+              onFocus={() => setActiveIdx(i)}
               onClick={() => setActiveIdx(i)}
+              aria-label={`${item.year} — ${item.title}`}
+              aria-pressed={i === activeIdx}
             >
-              <div className={`is-ht-dot${i === activeIdx ? ' is-ht-dot--active' : ''}`} />
-              <div className={`is-ht-label${i === activeIdx ? ' is-ht-label--active' : ''}`}>
+              <span className={`is-ht-dot${i === activeIdx ? ' is-ht-dot--active' : ''}`} />
+              <span className={`is-ht-label${i === activeIdx ? ' is-ht-label--active' : ''}`}>
                 {item.year}
-              </div>
-            </div>
+              </span>
+            </button>
           ))}
         </div>
       </div>
