@@ -328,8 +328,9 @@ const LIGHT_PALETTE = {
   labelPrimary: '#3a6b5a', labelSecondary: '#555', labelFallow: '#7a6820', labelMuted: '#888',
   ctaBlue: '#1a59ce',
   // Reference path
-  refLine: 'rgba(150,140,130,0.55)', refHalo: 'rgba(160,150,140,0.22)',
-  refCircle: 'rgba(150,140,130,0.6)', refText: 'rgba(120,110,100,0.7)',
+  refLine: 'rgba(52, 51, 50, 0.55)', refHalo: 'rgba(68, 64, 61, 0.22)',
+  refCircle: 'rgba(49, 47, 46, 0.6)', refText: 'rgba(0, 0, 0, 1)',
+  refTextStroke: 'rgba(255, 255, 255, 0.6)',
 };
 
 const DARK_PALETTE = {
@@ -350,8 +351,9 @@ const DARK_PALETTE = {
   quadrantBorder: 'rgba(255,255,255,0.08)',
   labelPrimary: '#5cc8a0', labelSecondary: '#aaa', labelFallow: '#daa520', labelMuted: '#777',
   ctaBlue: '#4a8af5',
-  refLine: 'rgba(160,155,150,0.55)', refHalo: 'rgba(160,155,150,0.18)',
-  refCircle: 'rgba(160,155,150,0.5)', refText: 'rgba(180,175,170,0.7)',
+  refLine: 'rgba(255, 255, 255, 0.55)', refHalo: 'rgba(143, 139, 134, 0.18)',
+  refCircle: 'rgba(185, 183, 181, 0.5)', refText: 'rgba(255, 255, 255, 0.7)',
+  refTextStroke: 'rgba(0, 0, 0, 0.5)',
 };
 
 export function getCanvasColors() {
@@ -437,27 +439,21 @@ export function drawScanpath(ctx, shown, sx, sy) {
     const curv = len * 0.12 * (i % 2 === 0 ? 1 : -1);
     const cpx = len > 0 ? mx + (-dy / len) * curv : mx;
     const cpy = len > 0 ? my + (dx / len) * curv : my;
-    const rec = i / shown.length;
-    const alpha = (0.2 + 0.5 * rec).toFixed(2);
-    ctx.strokeStyle = `rgba(107,92,165,${alpha})`; ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(107,92,165,0.7)'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(x1, y1); ctx.quadraticCurveTo(cpx, cpy, x2, y2); ctx.stroke();
     const angle = Math.atan2(y2 - cpy, x2 - cpx);
-    ctx.fillStyle = `rgba(107,92,165,${alpha})`; ctx.beginPath(); ctx.moveTo(x2, y2);
+    ctx.fillStyle = 'rgba(107,92,165,0.7)'; ctx.beginPath(); ctx.moveTo(x2, y2);
     ctx.lineTo(x2 - 6 * Math.cos(angle - 0.4), y2 - 6 * Math.sin(angle - 0.4));
     ctx.lineTo(x2 - 6 * Math.cos(angle + 0.4), y2 - 6 * Math.sin(angle + 0.4)); ctx.fill();
   }
-  const minD = Math.min(...shown.map(f => f.duration));
-  const maxD = Math.max(...shown.map(f => f.duration));
-  const dR = Math.max(1, maxD - minD);
+  const r = 12 * Math.min(sx, 1.2);
   for (let i = 0; i < shown.length; i++) {
     const f = shown[i], fx = f.x * sx, fy = f.y * sy;
-    const rec = (i + 1) / shown.length;
-    const r = Math.max(5, (5 + 7 * (f.duration - minD) / dR)) * Math.min(sx, 1.2);
-    ctx.fillStyle = `rgba(26,138,106,${(0.06 + 0.1 * rec).toFixed(2)})`;
+    ctx.fillStyle = 'rgba(26,138,106,0.12)';
     ctx.beginPath(); ctx.arc(fx, fy, r + 6, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = `rgba(26,138,106,${(0.35 + 0.55 * rec).toFixed(2)})`;
+    ctx.fillStyle = 'rgba(26,138,106,0.75)';
     ctx.beginPath(); ctx.arc(fx, fy, r, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = `rgba(255,255,255,${(0.5 + 0.5 * rec).toFixed(2)})`;
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
     ctx.font = `bold ${Math.max(7, 9 * sx)}px Inter, sans-serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(`${i + 1}`, fx, fy);
   }

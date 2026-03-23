@@ -97,16 +97,19 @@ function drawReferencePath(ctx, fixations, sx, sy) {
     ctx.stroke();
   }
   ctx.setLineDash([]);
+  const refR = 12 * Math.min(sx, 1.2);
   fixations.forEach((f, i) => {
     const fx = f.x * sx, fy = f.y * sy;
     ctx.fillStyle   = c.refHalo;
     ctx.strokeStyle = c.refCircle;
     ctx.lineWidth   = 1.5;
-    ctx.beginPath(); ctx.arc(fx, fy, 9, 0, Math.PI * 2);
+    ctx.beginPath(); ctx.arc(fx, fy, refR, 0, Math.PI * 2);
     ctx.fill(); ctx.stroke();
-    ctx.fillStyle = c.refText;
-    ctx.font = `bold ${Math.max(7, 8 * sx)}px Inter, sans-serif`;
+    ctx.font = `bold ${Math.max(7, Math.round(refR * 0.85))}px Inter, sans-serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.strokeStyle = c.refTextStroke; ctx.lineWidth = 0.8;
+    ctx.strokeText(`${i + 1}`, fx, fy);
+    ctx.fillStyle = c.refText;
     ctx.fillText(`${i + 1}`, fx, fy);
   });
   ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
@@ -115,7 +118,7 @@ function drawReferencePath(ctx, fixations, sx, sy) {
 
 // ── Contextual tip ────────────────────────────────────────────────────────────
 function getTip(fixations, score, controls) {
-  if (score >= 95) return 'Excellent! Your scanpath closely matches the reference. The design is guiding attention along the intended path.';
+  if (score >= 95) return <>Your scanpath closely matches the reference! The design is <b>guiding attention along the intended path</b>.</>;
 
   const first = fixations[0]?.elementType;
   const types = fixations.map(f => f.elementType);
@@ -123,15 +126,15 @@ function getTip(fixations, score, controls) {
   const imgIdx = types.indexOf('image');
 
   if (controls.adCount > 0)
-    return 'Ads are scattering mid-path fixations across the canvas, increasing DTW distance from the reference. Remove distractors first.';
+    return <>Ads are scattering fixations across the canvas, increasing DTW distance. <b>Remove distractors</b> first.</>;
   if (first !== 'headline' && controls.headlineSize < 30)
-    return 'First fixation is far from the reference start. Increase headline size so it anchors the opening gaze near the top-left, matching the reference.';
+    return <>First fixation is far from the reference start. <b>Increase headline size</b> so it anchors the opening gaze near the top-left.</>;
   if (controls.ctaColor !== '#d4553a' && (ctaIdx === -1 || (imgIdx !== -1 && ctaIdx > imgIdx)))
-    return 'The CTA fixation appears too late or after the image, creating a large sequential displacement from the reference path. Try a warmer CTA color.';
+    return <>The CTA fixation appears too late, creating a large displacement from the reference path. Try a <b>warmer CTA color</b>.</>;
   if (controls.imageSize < 1.0)
-    return 'The image is too small to anchor the right side of the layout. Increase image size to draw fixations toward the reference trajectory.';
+    return <>The image is too small to anchor the right side. <b>Increase image size</b> to draw fixations toward the reference trajectory.</>;
 
-  return 'Paths are partially aligned. Fine-tune headline size, image size, or CTA color to bring the remaining fixations closer to the reference trajectory.';
+  return <>Paths are partially aligned. Fine-tune <b>headline size</b>, <b>image size</b>, or <b>CTA color</b> to bring fixations closer to the reference.</>;
 }
 
 // ── Default (intentionally suboptimal) starting controls ─────────────────────
@@ -139,13 +142,14 @@ const DEFAULT_CONTROLS = {
   headlineSize: 16,
   imageSize:    1.1,
   ctaColor:     '#6b5ca5',
-  adCount:      0,
+  adCount:      4,
 };
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function ScanpathChallenge() {
   const [controls, setControls] = useState(DEFAULT_CONTROLS);
   const [canvasH, setCanvasH]   = useState(null);
+  const [tipOpen, setTipOpen]   = useState(false);
   const canvasRef = useRef(null);
   const drawRef   = useRef(null);
 
@@ -205,14 +209,12 @@ export default function ScanpathChallenge() {
 
       {/* Brief */}
       <div className="sc-brief">
-        <span className="sc-brief-icon">🎯</span>
-        <p>
-          <strong>Goal:</strong> Adjust the controls to make your simulated scanpath
-          (coloured) match the reference path (grey dashed) as closely as possible.
-          Similarity is measured using <strong>Dynamic Time Warping</strong> on the
-          raw fixation coordinates — not just which elements were visited, but{' '}
-          <em>where</em> in space each fixation landed.
-        </p>
+        <p className="sc-brief-headline">Task🎯: Tweak the sliders to match the <span className="sc-ref-tag">reference path</span></p>
+        <div className="sc-brief-steps">
+          <span className="sc-step"><span className="sc-step-num">1</span> Drag the sliders on the left</span>
+          <span className="sc-step"><span className="sc-step-num">2</span> Watch the coloured scanpath update</span>
+          <span className="sc-step"><span className="sc-step-num">3</span> Aim for high similarity score</span>
+        </div>
       </div>
 
       <div className="sc-layout">
@@ -310,6 +312,20 @@ export default function ScanpathChallenge() {
         <div className="sc-canvas-wrap" style={{ position: 'relative' }}>
           <canvas ref={canvasRef} className="sc-canvas" />
 
+          {/* Hint overlay on canvas */}
+          <div className={`sc-hint-overlay${tipOpen ? ' sc-hint-overlay--open' : ''}`}>
+            <button
+              className={`sc-hint-btn${tipOpen ? ' sc-hint-btn--open' : ''}`}
+              onClick={() => setTipOpen(o => !o)}
+            >
+              <span className="sc-hint-bulb">💡</span>
+              <span className="sc-hint-label">{tipOpen ? 'Hide Hint' : 'Show Hint'}</span>
+            </button>
+            <div className={`sc-tip-bar${tipOpen ? ' sc-tip-bar--visible' : ''}`}>
+              <p className="sc-tip-text">{tip}</p>
+            </div>
+          </div>
+
           {/* Canvas legend */}
           <div className="sc-legend">
             <span className="sc-legend-item sc-legend-ref">
@@ -320,12 +336,6 @@ export default function ScanpathChallenge() {
               <span className="sc-legend-line sc-legend-line--user" />
               Your scanpath
             </span>
-          </div>
-
-          {/* Contextual tip — always visible */}
-          <div className="sc-tip-bar">
-            <span className="sc-tip-icon">💡</span>
-            <p className="sc-tip-text">{tip}</p>
           </div>
         </div>
 

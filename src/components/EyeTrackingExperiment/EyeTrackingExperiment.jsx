@@ -351,7 +351,7 @@ const VALID_PTS = [
   { rx: 0.82, ry: 0.7  },
 ];
 
-const TRIAL_MS       = 5000;
+const TRIAL_MS       = 8000;
 const CLICKS_PER_DOT = 5;
 const VALID_MS       = 2200;  // ms to collect gaze samples per validation point
 const VALID_SETTLE   = 600;   // ms to discard at start (saccade + settling time)
@@ -494,6 +494,12 @@ function ResultCard({ content, gazePoints, label }) {
         </div>
         {/* Heatmap drawn on a transparent canvas on top */}
         <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
+        {/* Zoom hint overlay */}
+        {dims.scale > 0 && (
+          <div className="ete-zoom-hint">
+            <span className="ete-zoom-hint-icon">&#x1F50D;</span> Click to zoom
+          </div>
+        )}
       </div>
       <div className="ete-gaze-count">{gazePoints.length} gaze samples</div>
 
@@ -549,11 +555,12 @@ function CalibDot({ rx, ry, idx, done, active, clicksLeft, onClick }) {
         left: `calc(${rx * 100}vw - 22px)`, top: `calc(${ry * 100}vh - 22px)`,
         width: 45, height: 45,
         borderRadius: '50%',
-        background: done ? '#1a8a6a' : active ? '#d4553a' : '#ccc',
-        border: `3px solid ${done ? '#0e5c48' : active ? '#a33' : '#999'}`,
+        background: done ? '#1a8a6a' : active ? '#d4553a' : '#888',
+        border: `3px solid ${done ? '#0e5c48' : active ? '#a33' : '#666'}`,
         cursor: active ? 'pointer' : 'default',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         color: '#fff', fontSize: '0.82rem', fontWeight: 700,
+        textShadow: '0 1px 2px rgba(0,0,0,0.4)',
         fontFamily: "'Inter', sans-serif",
         transition: 'background 200ms, transform 100ms',
         transform: active ? 'scale(1.1)' : 'scale(1)',
@@ -711,7 +718,7 @@ function CelebrationOverlay({ onComplete }) {
 
 /* ── Main component ──────────────────────────────────────────────*/
 export default function EyeTrackingExperiment() {
-  // phase: idle | loading | calibrating | pre_validation | validating | validation_result | pretrial | viewing | celebrating | done | error
+  // phase: idle | loading | pre_calibration | calibrating | pre_validation | validating | validation_result | pretrial | viewing | celebrating | done | error
   const [phase,        setPhase]        = useState(() => {
     try {
       const saved = localStorage.getItem('ete-gaze-data');
@@ -746,7 +753,7 @@ export default function EyeTrackingExperiment() {
   const [validIdx,     setValidIdx]     = useState(0);
   const [validErrors,  setValidErrors]  = useState([]);
   const [faceDetected, setFaceDetected] = useState(false);
-  const [openFactors,  setOpenFactors]  = useState(new Set([0])); // first tab open by default
+  const [openFactors,  setOpenFactors]  = useState(() => new Set(FACTORS.map((_, i) => i))); // all tabs open by default
 
   // Persist gaze data to localStorage so results survive a page reload
   useEffect(() => {
@@ -857,7 +864,7 @@ export default function EyeTrackingExperiment() {
           el.style.left     = '0';
         });
       }
-      setPhase('calibrating');
+      setPhase('pre_calibration');
       setCalibIdx(0);
       setCalibClicks(0);
       wg.setGazeListener((data) => {
@@ -1035,7 +1042,7 @@ export default function EyeTrackingExperiment() {
 
   /* ── Overlay backdrop ────────────────────────────────────────── */
   const isOverlay = phase !== 'idle' && phase !== 'error' && phase !== 'done' && phase !== 'celebrating';
-  const showFaceBadge = phase === 'loading' || phase === 'calibrating' || phase === 'pre_validation' || phase === 'validating';
+  const showFaceBadge = phase === 'loading' || phase === 'pre_calibration' || phase === 'calibrating' || phase === 'pre_validation' || phase === 'validating';
 
   /* ── Validation result helpers ───────────────────────────────── */
   const validAvg = (() => {
@@ -1083,6 +1090,7 @@ export default function EyeTrackingExperiment() {
 
       {/* Celebration overlay */}
       {phase === 'celebrating' && <CelebrationOverlay onComplete={() => {
+        stopCamera(); // ensure camera is fully released
         setPhase('done');
         // Scroll to the experiment section after a brief delay for render
         setTimeout(() => {
@@ -1157,6 +1165,30 @@ export default function EyeTrackingExperiment() {
             </div>
           )}
 
+          {/* Pre-calibration instructions */}
+          {phase === 'pre_calibration' && (
+            <div className="ete-centre-box" style={{ maxWidth: 500, gap: 16 }}>
+              <div style={{ fontSize: '1.5rem' }}>🎯</div>
+              <h3 style={{ color: 'var(--text-primary)', margin: 0, fontFamily: "'Inter', sans-serif" }}>
+                Before We Begin
+              </h3>
+              <div style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', textAlign: 'left', lineHeight: 1.7, margin: 0, fontFamily: "'Inter', sans-serif" }}>
+                <p style={{ margin: '0 0 8px' }}>
+                  We will now calibrate the eye tracker. Here's what to expect:
+                </p>
+                <ol style={{ margin: 0, paddingLeft: '1.2em' }}>
+                  <li><strong>{CALIB_PTS.length} dots</strong> will appear on screen one at a time.</li>
+                  <li><strong>Look directly at the active dot</strong>, then <strong>click {CLICKS_PER_DOT} times</strong>.</li>
+                  <li>Keep your <strong>head still</strong> and your <strong>face centred</strong> in the camera preview (top-left corner).</li>
+                  <li>Try to stay at a consistent distance from the screen.</li>
+                </ol>
+              </div>
+              <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={() => setPhase('calibrating')}>
+                Start Calibration
+              </button>
+            </div>
+          )}
+
           {/* Calibration */}
           {phase === 'calibrating' && (
             <>
@@ -1164,11 +1196,6 @@ export default function EyeTrackingExperiment() {
                 <strong>Calibration</strong>&nbsp;—&nbsp;
                 Look at each red dot, then click it {CLICKS_PER_DOT} times.&nbsp;
                 ({calibIdx + 1}&nbsp;/&nbsp;{CALIB_PTS.length})
-              </div>
-              {/* Camera preview label — sits above the WebGazer video container */}
-              <div className="ete-cam-label">
-                <span className="ete-cam-label-icon">📷</span>
-                Keep your face centred in the box
               </div>
               {CALIB_PTS.map((pt, i) => (
                 <CalibDot

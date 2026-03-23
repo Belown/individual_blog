@@ -112,6 +112,124 @@ details[open] .fs-ref-chevron {
   transform: scale(0.95);
 }
 
+/* ── Custom range slider ── */
+.fs-slider-track-wrap {
+  position: relative;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+/* Unfilled track background */
+.fs-slider-track-wrap::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+}
+
+/* Filled portion of the track */
+.fs-slider-fill {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 6px;
+  border-radius: 3px;
+  background: var(--accent);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* The range input itself */
+.fs-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 28px;
+  border-radius: 3px;
+  background: transparent;
+  outline: none;
+  margin: 0;
+  position: relative;
+  z-index: 2;
+  cursor: grab;
+}
+.fs-range:active {
+  cursor: grabbing;
+}
+
+/* Track — WebKit */
+.fs-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: transparent;
+}
+
+/* Track — Firefox */
+.fs-range::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  border: none;
+}
+
+/* Thumb — WebKit */
+.fs-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 0 2px var(--accent), 0 2px 8px rgba(0,0,0,0.15);
+  cursor: grab;
+  transition: transform 150ms ease, box-shadow 200ms ease;
+  margin-top: -5px;
+}
+.fs-range:hover::-webkit-slider-thumb {
+  transform: scale(1.18);
+  box-shadow: 0 0 0 3px var(--accent), 0 0 12px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.fs-range:active::-webkit-slider-thumb {
+  transform: scale(1.1);
+  cursor: grabbing;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 50%, transparent), 0 0 16px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+/* Thumb — Firefox */
+.fs-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 0 2px var(--accent), 0 2px 8px rgba(0,0,0,0.15);
+  cursor: grab;
+  transition: transform 150ms ease, box-shadow 200ms ease;
+}
+.fs-range:hover::-moz-range-thumb {
+  transform: scale(1.18);
+  box-shadow: 0 0 0 3px var(--accent), 0 0 12px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.fs-range:active::-moz-range-thumb {
+  transform: scale(1.1);
+  cursor: grabbing;
+}
+
+/* Firefox filled portion */
+.fs-range::-moz-range-progress {
+  background: var(--accent);
+  opacity: 0.5;
+  height: 6px;
+  border-radius: 3px;
+}
+
 @media (max-width: 680px) {
   .fs-demo-grid { padding: 0 16px; gap: 14px; }
 }

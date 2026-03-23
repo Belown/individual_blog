@@ -99,10 +99,15 @@
 }
 
 .ete-insight-text {
-  margin-top: 10px;
+  margin-top: 14px;
   margin-bottom: 0;
-  font-size: 0.88rem;
+  padding: 18px 22px;
+  background: var(--accent-light);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  font-size: 0.92rem;
   color: var(--text-secondary);
+  line-height: 1.7;
 }
 
 .ete-variant-label {
@@ -120,6 +125,32 @@
   color: var(--text-muted);
   margin-top: 4px;
   text-align: center;
+}
+
+/* Zoom hint overlay on result thumbnails */
+.ete-zoom-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  border-radius: inherit;
+}
+.ete-zoom-hint-icon {
+  font-size: 1.1rem;
+}
+/* Show on hover of the parent container (which has cursor: pointer) */
+*:hover > .ete-zoom-hint {
+  opacity: 1;
 }
 
 /* ── Overlay ── */
@@ -507,7 +538,7 @@
 /* ── Camera preview label (sits below the top-left video container) ── */
 .ete-cam-label {
   position: fixed;
-  top: 218px; /* 210px video height + 8px gap */
+  top: calc(min(210px, 11.25vw) + 8px); /* match video container height + gap */
   left: 0;
   display: flex;
   align-items: center;

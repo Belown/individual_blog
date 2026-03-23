@@ -90,10 +90,12 @@ function FactorDemo({ title, description, icon, paramLabel, paramMin, paramMax, 
               {typeof val === 'number' ? (paramStep < 1 ? `${Math.round(val * 100)}%` : val) : val}
             </strong>
           </span>
-          <span className="interaction-hint">Drag to adjust</span>
         </div>
-        <input type="range" min={paramMin} max={paramMax} step={paramStep} value={val}
-          onChange={(e) => setVal(Number(e.target.value))} />
+        <div className="fs-slider-track-wrap">
+          <input type="range" className="fs-range" min={paramMin} max={paramMax} step={paramStep} value={val}
+            onChange={(e) => setVal(Number(e.target.value))} />
+          <div className="fs-slider-fill" style={{ width: `${((val - paramMin) / (paramMax - paramMin)) * 100}%` }} />
+        </div>
       </div>
     </div>
   );
