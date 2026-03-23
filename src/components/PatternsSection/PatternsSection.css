@@ -1,3 +1,4 @@
+/* ── Explanation card (single block per pattern) ── */
 .ps-expl-block {
   margin-bottom: 24px;
   padding: 22px 26px;
@@ -7,6 +8,109 @@
   transition: border-color 200ms ease, box-shadow 200ms ease;
 }
 
+.ps-expl-block p {
+  margin-bottom: 8px;
+}
+
+.ps-expl-block p:last-of-type {
+  margin-bottom: 0;
+}
+
+/* ── Inner flex layout: text left, demo right ── */
+.ps-block-inner {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+.ps-block-text {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* Demo column */
+.ps-block-inner > .ps-demo-inline {
+  flex: 0 0 380px;
+  max-width: 420px;
+}
+
+/* ── Inline demo (canvas + overlay play button) ── */
+.ps-demo-inline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.ps-demo-inline .demo-canvas {
+  width: 100%;
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+/* Video-player-style overlay play button */
+.ps-play-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 2;
+  transition: opacity 200ms ease;
+}
+
+.ps-play-overlay:hover svg circle {
+  fill: rgba(0, 0, 0, 0.6);
+}
+
+.ps-play-overlay:active svg circle {
+  fill: rgba(0, 0, 0, 0.7);
+}
+
+/* ── Learn-more accordion ── */
+.ps-learn-more {
+  margin: 8px 0 4px;
+  font-size: 0.92rem;
+  color: var(--text-secondary, var(--text-muted));
+}
+
+.ps-learn-more summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--accent, var(--purple));
+  user-select: none;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ps-learn-more summary::-webkit-details-marker {
+  display: none;
+}
+
+.ps-learn-more summary::before {
+  content: '▸';
+  display: inline-block;
+  transition: transform 200ms ease;
+}
+
+.ps-learn-more[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.ps-learn-more p {
+  margin: 8px 0 0 16px;
+  line-height: 1.55;
+  color: var(--text-secondary, var(--text-muted));
+}
+
+/* ── Reference link ── */
 .ps-ref-link {
   font-size: 0.8rem;
   color: var(--text-muted);
@@ -15,25 +119,21 @@
   font-family: 'Inter', sans-serif;
 }
 
-.ps-pattern-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  max-width: 1060px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
+/* ── Responsive ── */
+@media (max-width: 880px) {
+  .ps-block-inner {
+    flex-direction: column;
+  }
 
-.ps-pattern-card {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  .ps-block-inner > .ps-demo-inline {
+    flex: 1 1 auto;
+    max-width: 100%;
+    width: 100%;
+  }
 }
-
 
 @media (max-width: 680px) {
-  .ps-pattern-grid {
-    grid-template-columns: 1fr;
-    padding: 0 16px;
+  .ps-expl-block {
+    padding: 16px 18px;
   }
 }

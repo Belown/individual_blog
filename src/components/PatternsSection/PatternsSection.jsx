@@ -83,7 +83,7 @@ function PatternCanvas({ pattern, label }) {
       ctx.fillRect(30, 240, 100, 8);
 
       // CTA button
-      ctx.fillStyle = c.ctaBlue;
+      ctx.fillStyle = c.ctaBlue
       const bx = 340, by = 225, bw = 60, bh = 28, br = 5;
       ctx.beginPath();
       ctx.moveTo(bx+br,by); ctx.lineTo(bx+bw-br,by); ctx.quadraticCurveTo(bx+bw,by,bx+bw,by+br);
@@ -302,12 +302,20 @@ function PatternCanvas({ pattern, label }) {
   }, [playing, pts, drawScene]);
 
   return (
-    <div className="card ps-pattern-card">
-      <h4 style={{ marginBottom: 6 }}>{label}</h4>
-      <canvas ref={ref} className="demo-canvas" style={{ aspectRatio: '430 / 280', marginBottom: 12, cursor: 'not-allowed' }} />
-      <button className="btn btn-primary btn-sm" style={{ minWidth: 120, height: 32 }} onClick={() => setPlaying(true)} disabled={playing}>
-        {playing ? 'Playing…' : '▶ Play'}
-      </button>
+    <div className="ps-demo-inline" style={{ position: 'relative' }}>
+      <canvas ref={ref} className="demo-canvas" style={{ aspectRatio: '430 / 280' }} />
+      {!playing && (
+        <button
+          className="ps-play-overlay"
+          onClick={() => setPlaying(true)}
+          aria-label={`Play ${label} animation`}
+        >
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="23" fill="rgba(0,0,0,0.45)" stroke="rgba(255,255,255,0.8)" strokeWidth="2" />
+            <polygon points="19,14 19,34 35,24" fill="rgba(255,255,255,0.9)" />
+          </svg>
+        </button>
+      )}
     </div>
   );
 }
@@ -320,78 +328,121 @@ export default function PatternsSection() {
         <div className="section-header">
           <span className="badge badge-purple">Gaze Patterns</span>
           <h2>How Eyes Scan a Page</h2>
-          <p className="section-subtitle" style={{ maxWidth:'8000px' }}>
-            Eye-tracking research has revealed several recurring patterns in how people scan
-            visual content. Understanding these patterns is the foundation of attention-aware design. And they are also widely used for guiding the attention of users.
+          <p className="section-subtitle" style={{ maxWidth: '800px' }}>
+            Recurring gaze patterns reveal where eyes naturally go — and where they don&apos;t.
           </p>
         </div>
 
         <div className="container">
+          {/* ── F-Pattern ── */}
           <div className="ps-expl-block">
-            <h3 style={{ marginBottom: 8 }}>📖 Reading-Based Patterns</h3>
-            <p>
-              When a page is <strong>text-heavy</strong>, readers in left-to-right languages tend to
-              follow predictable horizontal scanning behaviors. The most famous is the <em>F-pattern</em>,
-              discovered by Jakob Nielsen&apos;s eye-tracking studies at the Nielsen Norman Group.
-            </p>
-            <p>
-              Users first read across the top (the first horizontal bar of the &quot;F&quot;), then move down
-              and read a shorter second line, and finally scan the left side vertically. This means
-              <strong> content placed in the top-left gets the most attention</strong>, while the
-              bottom-right is often ignored.
-            </p>
-            <p className="ps-ref-link">
-              📎 Reference: <a href="https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content-discovered/" target="_blank" rel="noopener noreferrer">Nielsen, J. (2006). F-Shaped Pattern For Reading Web Content</a>
-            </p>
+            <div className="ps-block-inner">
+              <div className="ps-block-text">
+                <h3 style={{ marginBottom: 8 }}>📖 F-Pattern (Reading-Based)</h3>
+                <p>
+                  On <strong>text-heavy pages</strong>, left-to-right readers scan in an
+                  {' '}<em>F-shape</em>: across the top, a shorter second sweep, then down the
+                  left edge. <strong>Top-left content gets the most attention; bottom-right
+                  is often ignored.</strong>
+                </p>
+                <details className="ps-learn-more">
+                  <summary>Learn more</summary>
+                  <p>
+                    Jakob Nielsen&apos;s eye-tracking studies showed users first read across the
+                    top (the first bar of the &quot;F&quot;), then move down for a shorter second line,
+                    and finally scan vertically along the left side.
+                  </p>
+                  <p className="ps-ref-link">
+                    📎 <a href="https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content-discovered/" target="_blank" rel="noopener noreferrer">Nielsen, J. (2006). F-Shaped Pattern</a>
+                  </p>
+                </details>
+              </div>
+              <PatternCanvas pattern="f-pattern" label="F-Pattern" />
+            </div>
           </div>
 
+          {/* ── Z-Pattern ── */}
           <div className="ps-expl-block">
-            <h3 style={{ marginBottom: 8 }}>🎨 Visual-Based Patterns</h3>
-            <p>
-              For pages with <strong>less text and more visual elements</strong> (landing pages,
-              posters, ads), the <em>Z-pattern</em> applies: the eye moves from top-left → top-right
-              → diagonally to bottom-left → bottom-right. This is why logos go top-left and CTAs
-              go bottom-right.
-            </p>
-            <p>
-              The <em>Gutenberg diagram</em> divides a page into four quadrants: the Primary Optical
-              Area (top-left), Strong Fallow (top-right), Weak Fallow (bottom-left), and Terminal
-              Area (bottom-right). Attention naturally flows from primary to terminal along a
-              &quot;reading gravity&quot; diagonal.
-            </p>
-            <p className="ps-ref-link">
-              📎 References: <a href="https://vanseodesign.com/web-design/3-design-layouts/#:~:text=3%20Design%20Layouts%3A%20Gutenberg%20Diagram,-Pattern%2C%20And%20F-Pattern" target="_blank" rel="noopener noreferrer">Z-Pattern</a> · <a href="https://medium.com/user-experience-3/the-gutenberg-diagram-in-web-design-e5347c172627" target="_blank" rel="noopener noreferrer">Gutenberg Diagram</a>
-            </p>
+            <div className="ps-block-inner">
+              <div className="ps-block-text">
+                <h3 style={{ marginBottom: 8 }}>🎨 Z-Pattern</h3>
+                <p>
+                  On pages with <strong>more visuals than text</strong> (landing pages, ads),
+                  eyes follow a <em>Z-shape</em>: top-left → top-right → diagonal to
+                  bottom-left → bottom-right. <strong>Logos go top-left, CTAs go
+                  bottom-right.</strong>
+                </p>
+                <details className="ps-learn-more">
+                  <summary>Learn more</summary>
+                  <p>
+                    The Z-pattern is most effective on visually driven layouts with minimal
+                    copy. The diagonal sweep connects the brand identity (top-left) to the
+                    primary call-to-action (bottom-right), making it ideal for landing pages
+                    and advertisements.
+                  </p>
+                  <p className="ps-ref-link">
+                    📎 <a href="https://vanseodesign.com/web-design/3-design-layouts/#:~:text=3%20Design%20Layouts%3A%20Gutenberg%20Diagram,-Pattern%2C%20And%20F-Pattern" target="_blank" rel="noopener noreferrer">Z-Pattern &amp; Design Layouts</a>
+                  </p>
+                </details>
+              </div>
+              <PatternCanvas pattern="z-pattern" label="Z-Pattern" />
+            </div>
           </div>
 
+          {/* ── Gutenberg Diagram ── */}
           <div className="ps-expl-block">
-            <h3 style={{ marginBottom: 8 }}>📊 The Layer-Cake Pattern</h3>
-            <p>
-              A variation of the F-pattern where users <strong>only read headings and subheadings</strong>,
-              skipping body text entirely. The scanpath looks like horizontal &quot;layers&quot; separated
-              by vertical jumps — like a layer cake. This is extremely common on mobile devices
-              and content-heavy pages.
-            </p>
-            <p className="ps-ref-link">
-              📎 Reference: <a href="https://www.nngroup.com/articles/layer-cake-pattern-scanning/" target="_blank" rel="noopener noreferrer">The Layer-Cake Pattern of Scanning Content on the Web</a>
-            </p>
+            <div className="ps-block-inner">
+              <div className="ps-block-text">
+                <h3 style={{ marginBottom: 8 }}>📐 Gutenberg Diagram</h3>
+                <p>
+                  Divides a page into four quadrants: <strong>Primary Optical Area</strong>{' '}
+                  (top-left, high attention), <strong>Terminal Area</strong> (bottom-right,
+                  high). Attention flows along a &quot;reading gravity&quot; diagonal from primary
+                  to terminal.
+                </p>
+                <details className="ps-learn-more">
+                  <summary>Learn more</summary>
+                  <p>
+                    The two remaining zones — Strong Fallow (top-right) and Weak Fallow
+                    (bottom-left) — receive less attention. Designers use this model to place
+                    key content along the gravity diagonal and avoid burying important
+                    elements in the fallow areas.
+                  </p>
+                  <p className="ps-ref-link">
+                    📎 <a href="https://medium.com/user-experience-3/the-gutenberg-diagram-in-web-design-e5347c172627" target="_blank" rel="noopener noreferrer">Gutenberg Diagram in Web Design</a>
+                  </p>
+                </details>
+              </div>
+              <PatternCanvas pattern="gutenberg" label="Gutenberg Diagram" />
+            </div>
           </div>
-        </div>
 
-        <h3 style={{ textAlign: 'center', marginBottom: 8, marginTop: 40, fontFamily: "'Inter', sans-serif" }}>
-          Interactive Pattern Demos
-        </h3>
-        <p className="interaction-hint" style={{ justifyContent: 'center', marginBottom: 16 }}>
-          Click &quot;Play&quot; to watch each pattern unfold step by step
-        </p>
-        <div className="ps-pattern-grid">
-          <PatternCanvas pattern="f-pattern" label="F-Pattern" />
-          <PatternCanvas pattern="z-pattern" label="Z-Pattern" />
-          <PatternCanvas pattern="gutenberg" label="Gutenberg Diagram" />
-          <PatternCanvas pattern="layer-cake" label="Layer-Cake Pattern" />
-        </div>
+          {/* ── Layer-Cake Pattern ── */}
+          <div className="ps-expl-block">
+            <div className="ps-block-inner">
+              <div className="ps-block-text">
+                <h3 style={{ marginBottom: 8 }}>📊 Layer-Cake Pattern</h3>
+                <p>
+                  Users <strong>only read headings and subheadings</strong>, skipping body
+                  text entirely. The scanpath looks like horizontal &quot;layers&quot; separated by
+                  vertical jumps — common on mobile and content-heavy pages.
+                </p>
+                <details className="ps-learn-more">
+                  <summary>Learn more</summary>
+                  <p>
+                    A variation of the F-pattern, the &quot;layer cake&quot; emerges when pages use
+                    clear heading hierarchy. Users jump between bold headings, reading just
+                    enough to decide whether the section is relevant before skipping ahead.
+                  </p>
+                  <p className="ps-ref-link">
+                    📎 <a href="https://www.nngroup.com/articles/layer-cake-pattern-scanning/" target="_blank" rel="noopener noreferrer">The Layer-Cake Pattern of Scanning Content on the Web</a>
+                  </p>
+                </details>
+              </div>
+              <PatternCanvas pattern="layer-cake" label="Layer-Cake Pattern" />
+            </div>
+          </div>
 
-        <div className="container">
           <div className="insight-box" style={{ maxWidth: 640, margin: '36px auto 0' }}>
             💡 <strong>Key insight:</strong> The design of a page doesn&apos;t just <em>display</em> content —
             it actively shapes the scanpath. By understanding these natural patterns, designers
