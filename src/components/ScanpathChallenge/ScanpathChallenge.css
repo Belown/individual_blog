@@ -3,7 +3,8 @@
   max-width: 1040px;
   margin: 0 auto;
   font-family: 'Inter', -apple-system, sans-serif;
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
 }
 
 /* ── Brief ──────────────────────────────────────────────────────────────────── */
@@ -284,6 +285,7 @@
   flex-direction: column;
   align-items: center;
   gap: 5px;
+  position: relative;
 }
 
 .sc-score-ring { width: 76px; height: 76px; }
@@ -293,6 +295,92 @@
   font-weight: 600;
   text-align: center;
   transition: color 380ms ease;
+}
+
+/* DTW info button — top-right of score wrap */
+.sc-dtw-info-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-style: italic;
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease, color 180ms ease, transform 120ms ease;
+  flex-shrink: 0;
+  line-height: 1;
+  padding: 0;
+}
+.sc-dtw-info-btn:hover {
+  background: var(--bg-surface);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: scale(1.1);
+}
+.sc-dtw-info-btn--open {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.sc-dtw-info-btn--open:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  transform: scale(1.1);
+}
+
+/* DTW info backdrop */
+.sc-dtw-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: transparent;
+}
+
+/* DTW info popup — absolutely positioned near the ℹ button */
+.sc-dtw-info-panel {
+  position: absolute;
+  transform: translateY(-50%);
+  width: min(300px, calc(100vw - 40px));
+  padding: 16px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.14);
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+.sc-dtw-info-panel--open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sc-dtw-info-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+  letter-spacing: 0.01em;
+}
+.sc-dtw-info-body {
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin: 0 0 6px;
+}
+.sc-dtw-info-body:last-child {
+  margin-bottom: 0;
 }
 
 .sc-congrats {

@@ -150,10 +150,28 @@ export default function ScanpathChallenge() {
   const [controls, setControls] = useState(DEFAULT_CONTROLS);
   const [canvasH, setCanvasH]   = useState(null);
   const [tipOpen, setTipOpen]   = useState(false);
-  const canvasRef = useRef(null);
-  const drawRef   = useRef(null);
+  const [dtwInfoOpen, setDtwInfoOpen] = useState(false);
+  const [popupPos, setPopupPos] = useState({ top: 0, left: 0 });
+  const canvasRef  = useRef(null);
+  const drawRef    = useRef(null);
+  const rootRef    = useRef(null);
+  const infoBtnRef = useRef(null);
 
   const set = (key, val) => setControls(c => ({ ...c, [key]: val }));
+
+  const toggleDtwInfo = () => {
+    setDtwInfoOpen(prev => {
+      if (!prev && infoBtnRef.current && rootRef.current) {
+        const btnRect  = infoBtnRef.current.getBoundingClientRect();
+        const rootRect = rootRef.current.getBoundingClientRect();
+        setPopupPos({
+          top:  btnRect.top  - rootRect.top + btnRect.height / 2,
+          left: btnRect.right - rootRect.left + 10,
+        });
+      }
+      return !prev;
+    });
+  };
 
   const elements  = useMemo(() => buildElements(controls), [controls]);
   const fixations = useMemo(
@@ -205,7 +223,7 @@ export default function ScanpathChallenge() {
 
   // ── Render ───────────────────────────────────────────────────────
   return (
-    <div className="sc-root">
+    <div className="sc-root" ref={rootRef}>
 
       {/* Brief */}
       <div className="sc-brief">
@@ -286,6 +304,15 @@ export default function ScanpathChallenge() {
           <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '4px 0' }} />
 
           <div className="sc-score-wrap">
+            <button
+              ref={infoBtnRef}
+              className={`sc-dtw-info-btn${dtwInfoOpen ? ' sc-dtw-info-btn--open' : ''}`}
+              onClick={toggleDtwInfo}
+              title="What is DTW?"
+              aria-label="Learn about DTW algorithm"
+            >
+              ℹ
+            </button>
             <svg viewBox="0 0 80 80" className="sc-score-ring">
               <circle cx="40" cy="40" r="32"
                 fill="none" stroke="var(--bg-surface)" strokeWidth="7" />
@@ -340,6 +367,29 @@ export default function ScanpathChallenge() {
         </div>
 
       </div>
+
+      {/* DTW info popup — rendered outside the scrollable panel, positioned near the ℹ button */}
+      {dtwInfoOpen && (
+        <>
+          <div className="sc-dtw-backdrop" onClick={() => setDtwInfoOpen(false)} />
+          <div
+            className="sc-dtw-info-panel sc-dtw-info-panel--open"
+            style={{ top: popupPos.top, left: popupPos.left }}
+          >
+            <p className="sc-dtw-info-title">Dynamic Time Warping (DTW)</p>
+            <p className="sc-dtw-info-body">
+              DTW measures similarity between two sequences that may vary in timing or speed.
+              It finds the <b>optimal alignment</b> by warping the time axis — stretching or compressing
+              points — to minimise the total distance between paired elements.
+            </p>
+            <p className="sc-dtw-info-body">
+              Here, each scanpath is a sequence of <b>(x, y) fixations</b>. DTW aligns your path to the
+              reference path, computing the summed Euclidean distance. A lower DTW distance →
+              higher similarity score.
+            </p>
+          </div>
+        </>
+      )}
     </div>
   );
 }
